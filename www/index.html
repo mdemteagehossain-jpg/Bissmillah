@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="dynamic-app-title">Bismillah Craft & Studio</title>
+    
+    <!-- App Icon -->
+    <link id="dynamic-app-icon" rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3081/3081559.png">
+    
+    <!-- Google Fonts for Bengali Support (Fixes Box/Font Issues) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- html2canvas for Image Saving -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Cropper.js for Image Cropping -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Hind Siliguri', sans-serif; }
+        .invoice-card { background: #fff; border: 1px dashed #cbd5e1; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .admin-avatar-edit-overlay { opacity:0; transition:opacity .18s ease; }
+        .admin-avatar-edit:hover .admin-avatar-edit-overlay, .admin-avatar-edit:focus-visible .admin-avatar-edit-overlay { opacity:1; }
+        @media (hover:none) { .admin-avatar-edit-overlay { opacity:0; } .admin-avatar-edit:active .admin-avatar-edit-overlay { opacity:1; } }
+        @keyframes logoFloat { 0%,100% { transform: translateY(0) scale(1); filter:drop-shadow(0 8px 12px #0b3b7820); } 50% { transform: translateY(-8px) scale(1.045); filter:drop-shadow(0 12px 18px #d6a52c66); } }
+        @keyframes logoReveal { 0% { opacity:0; transform:scale(.72) rotate(-7deg); } 65% { opacity:1; transform:scale(1.06) rotate(2deg); } 100% { opacity:1; transform:scale(1) rotate(0); } }
+        .product-image-square { width:100%; aspect-ratio:1 / 1; object-fit:contain; background:#fffdf7; cursor:zoom-in; }
+        #product-image-viewer img { max-height:82vh; max-width:94vw; object-fit:contain; }
+        #app-splash .splash-logo { animation:logoReveal .85s ease-out both, logoFloat 2.1s ease-in-out .85s infinite; }
+        .splash-tagline { letter-spacing:.04em; }
+        #banner-slider-container img { object-fit:cover; }
+        @media (prefers-reduced-motion: reduce) { #app-splash .splash-logo { animation:none; } }
+        @keyframes logoRing { to { transform: rotate(360deg); } }
+        #app-splash { position:fixed; inset:0; z-index:100; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:16px; overflow:hidden; background:radial-gradient(circle at top,#fff9e9,#fff 58%,#eaf2ff); transition:opacity .35s ease; }
+        #splash-design-image { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; z-index:0; }
+        #app-splash .splash-content { display:none !important; }
+        #splash-custom-media { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.24; display:none; }
+        #app-splash .splash-content { position:relative; z-index:1; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:16px; padding:24px; text-align:center; }
+        #app-splash .splash-logo { width:148px; height:148px; object-fit:contain; border-radius:28px; animation:logoFloat 1.8s ease-in-out infinite; }
+        #app-splash .splash-ring { width:34px;height:34px;border:4px solid #cbd5e1;border-top-color:#0b3b78;border-radius:50%;animation:logoRing .8s linear infinite; }
+        #app-splash.splash-hide { opacity:0; pointer-events:none; }
+        @media (prefers-reduced-motion: reduce) { #app-splash .splash-logo, #app-splash .splash-ring { animation:none; } }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen">
+    <div id="app-splash" aria-label="অ্যাপ চালু হচ্ছে">
+        <img id="splash-design-image" src="assets/splash-design.jpg" alt="Bismillah Craft & Studio splash screen">
+        <video id="splash-custom-media" muted playsinline loop></video>
+        <div class="splash-content">
+            <img id="splash-logo" class="splash-logo" src="assets/icon.png" alt="Bismillah Craft & Studio logo">
+            <div class="splash-ring" aria-hidden="true"></div>
+            <div class="text-center"><div class="text-xl font-bold text-blue-900">Bismillah</div><div class="text-sm text-amber-700">Craft &amp; Studio</div><div class="text-xs text-slate-600 mt-2 splash-tagline">Handmade • Custom Design • With Love</div><div class="text-xs font-semibold text-blue-900">শুরু হচ্ছে...</div></div>
+        </div>
+    </div>
+    <div id="notice-overlay" class="hidden fixed inset-0 z-[90] bg-black/70 backdrop-blur-sm p-4 flex items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="notice-title">
+        <div class="relative bg-white w-full max-w-sm max-h-[85vh] overflow-y-auto rounded-2xl shadow-2xl p-4 border border-amber-200">
+            <button onclick="dismissNotice()" aria-label="নোটিশ বন্ধ করুন" class="absolute right-3 top-3 w-8 h-8 rounded-full bg-slate-100 text-slate-700 font-bold">✕</button>
+            <div class="bg-blue-900 text-white rounded-xl px-3 py-2 font-bold mb-3 pr-10"><i class="fa-solid fa-bullhorn mr-2"></i><span id="notice-title">গুরুত্বপূর্ণ নোটিশ</span></div>
+            <img id="notice-image" class="hidden w-full max-h-64 object-contain rounded-xl border mb-3" alt="নোটিশ ছবি">
+            <div id="notice-text" class="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed"></div>
+            <button onclick="dismissNotice()" class="w-full mt-4 bg-blue-900 hover:bg-blue-800 text-white font-bold py-2.5 rounded-xl">বন্ধ করুন / মূল মেনুতে যান</button>
+        </div>
+    </div>
+
+    <div id="product-image-viewer" class="hidden fixed inset-0 z-[120] bg-black/90 p-3 flex items-center justify-center" role="dialog" aria-modal="true" aria-label="প্রোডাক্টের বড় ছবি" onclick="if(event.target===this) closeProductImage()">
+        <button onclick="closeProductImage()" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white text-slate-900 text-2xl font-bold shadow" aria-label="ছবি বন্ধ করুন">×</button>
+        <div class="w-full flex flex-col items-center gap-3" onclick="event.stopPropagation()">
+            <img id="product-image-viewer-img" src="" alt="প্রোডাক্টের বড় ছবি" class="rounded-xl shadow-2xl" onclick="this.classList.toggle('scale-110')">
+            <p id="product-image-viewer-caption" class="text-white text-center font-semibold"></p>
+            <p class="text-white/70 text-xs">ছবিতে ট্যাপ করলে জুম হবে</p>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="max-w-md mx-auto bg-white min-h-[95vh] shadow-2xl rounded-b-lg overflow-hidden pb-16 relative mt-1">
+
+        <!-- ==================== 1. VIEWER MODE ==================== -->
+        <div id="viewer-view" class="block">
+            <!-- Header Bar -->
+            <div class="bg-teal-700 text-white p-3 flex items-center justify-between gap-2 shadow-sm sticky top-0 z-40">
+                <div class="flex items-center gap-2">
+                    <img id="viewer-app-logo-header" src="assets/icon.png" class="w-7 h-7 object-cover rounded-full border border-amber-300">
+                    <h1 class="text-sm font-bold shop-title-text leading-tight">দেলোয়ার হোসেন</h1>
+                </div>
+                <div class="flex-1 max-w-[130px] relative">
+                    <input type="text" id="viewer-search-input" onkeyup="filterViewerSearch()" placeholder="Search..." class="w-full text-xs text-slate-800 bg-white rounded-full py-1 px-3 pr-7 focus:outline-none">
+                    <i class="fa-solid fa-magnifying-glass absolute right-2.5 top-1.5 text-gray-400 text-xs"></i>
+                </div>
+                <button onclick="switchMode('admin')" class="bg-teal-900 text-yellow-300 text-[10px] px-2 py-1 rounded-full font-bold border border-teal-500 relative">
+                    <i class="fa-solid fa-user-gear"></i>
+                    <span id="admin-notif-badge-icon" class="hidden absolute -top-1 -right-1 bg-rose-600 text-white text-[8px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center animate-ping">!</span>
+                </button>
+            </div>
+
+            <!-- Home Tab Content -->
+            <div id="v-tab-home-content">
+                <div class="relative h-56 sm:h-64 bg-slate-200 overflow-hidden rounded-b-xl shadow-sm">
+                    <div id="banner-slider-container" class="flex transition-transform duration-500 h-full w-full">
+                        <img id="v-banner-1" src="https://picsum.photos/600/250?random=1" class="w-full h-full object-cover flex-shrink-0" crossorigin="anonymous">
+                        <img id="v-banner-2" src="https://picsum.photos/600/250?random=2" class="w-full h-full object-cover flex-shrink-0" crossorigin="anonymous">
+                        <img id="v-banner-3" src="https://picsum.photos/600/250?random=3" class="w-full h-full object-cover flex-shrink-0" crossorigin="anonymous">
+                    </div>
+                </div>
+
+                <div class="flex gap-2 overflow-x-auto px-3 py-1 hide-scrollbar my-1 text-xs font-semibold text-slate-600" id="home-category-pills"></div>
+
+                <div class="px-3 py-2">
+                    <h2 class="text-sm font-bold text-slate-800 mb-2" id="current-category-title">সকল পণ্য</h2>
+                    <div class="grid grid-cols-2 gap-2.5" id="product-list"></div>
+                </div>
+            </div>
+
+            <!-- Category Tab Content -->
+            <div id="v-tab-category-content" class="hidden p-3 space-y-3">
+                <h2 class="text-sm font-bold text-slate-800 border-b pb-2">প্রোডাক্ট ক্যাটাগরি সমূহ</h2>
+                <div class="grid grid-cols-2 gap-3" id="viewer-category-grid"></div>
+            </div>
+
+            <!-- User Profile Tab Content -->
+            <div id="v-tab-profile-content" class="hidden p-4 space-y-4">
+                <div class="bg-teal-50 border border-teal-200 rounded-2xl p-4 text-center relative shadow-sm">
+                    <div class="w-28 h-28 mx-auto rounded-full border-4 border-white overflow-hidden bg-gray-100 shadow mb-2">
+                        <img id="user-profile-img-tab" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="font-bold text-sm text-slate-800" id="user-display-name">ব্যবহারকারীর নাম</h3>
+                    <p class="text-xs text-gray-500" id="user-display-phone">017XXXXXXXX</p>
+                    <p class="text-[11px] text-gray-400 mt-1" id="user-display-address">ঢাকা, বাংলাদেশ</p>
+                    <button onclick="openViewerProfileEditor()" class="mt-3 bg-teal-700 hover:bg-teal-800 text-white rounded-lg px-4 py-2 font-bold"><i class="fa-solid fa-user-pen mr-1"></i> প্রোফাইল এডিট করুন</button>
+                </div>
+
+                <div class="bg-white border rounded-xl p-3 space-y-2 text-xs shadow-sm">
+                    <h4 class="font-bold text-slate-700 border-b pb-2 flex items-center justify-between">
+                        <span><i class="fa-solid fa-clock-rotate-left text-teal-700 mr-1"></i> মাই অর্ডার স্ট্যাটাস ও হিস্টোরি</span>
+                    </h4>
+                    <div id="user-order-history-list" class="space-y-2 max-h-60 overflow-y-auto pt-1"></div>
+                </div>
+            </div>
+
+            <!-- Bottom Navigation Bar -->
+            <div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t flex justify-around items-center py-1.5 z-40 text-[10px] font-semibold text-gray-500 shadow-lg">
+                <button onclick="switchViewerTab('home')" class="flex flex-col items-center text-teal-700">
+                    <i class="fa-solid fa-house text-base"></i><span>Home</span>
+                </button>
+                <button onclick="switchViewerTab('category')" class="flex flex-col items-center hover:text-teal-700">
+                    <i class="fa-solid fa-bars-staggered text-base"></i><span>Category</span>
+                </button>
+                <button onclick="openCheckoutModal()" class="flex flex-col items-center hover:text-teal-700 relative">
+                    <i class="fa-solid fa-cart-shopping text-base"></i>
+                    <span id="cart-badge-bottom" class="hidden absolute -top-1 right-2 bg-rose-600 text-white text-[9px] font-bold px-1 rounded-full">0</span>
+                    <span>Cart</span>
+                </button>
+                <button onclick="switchViewerTab('profile')" class="flex flex-col items-center hover:text-teal-700 relative">
+                    <i class="fa-regular fa-circle-user text-base"></i>
+                    <span id="viewer-approved-badge" class="hidden absolute -top-1 right-3 bg-emerald-600 text-white text-[8px] w-2 h-2 rounded-full"></span>
+                    <span>Profile</span>
+                </button>
+            </div>
+        </div>
+
+
+        <!-- ==================== 2. ADMIN PANEL ==================== -->
+        <div id="admin-view" class="hidden p-4 bg-slate-50 min-h-full">
+            <div id="admin-lock-screen" class="bg-white p-6 rounded-lg text-center shadow-md my-10 border">
+                <i class="fa-solid fa-user-shield text-4xl text-teal-700 mb-2"></i>
+                <h2 class="text-lg font-bold mb-2">অ্যাডমিন পাসওয়ার্ড প্রবেশ করুন</h2>
+                <input type="password" id="admin-pass-input" placeholder="অ্যাডমিন পাসওয়ার্ড দিন" class="border p-2 rounded w-full mb-3 text-center text-sm">
+                <button onclick="checkAdminPassword()" class="bg-teal-700 text-white px-4 py-2 rounded w-full font-bold shadow">লগইন</button>
+            </div>
+
+            <div id="admin-content" class="hidden relative space-y-4">
+                
+                <!-- Admin Cover Photo Slider & Avatar Logo -->
+                <div class="relative h-36 bg-slate-200 rounded-xl overflow-hidden border group shadow-sm">
+                    <div id="admin-banner-slider-container" class="flex transition-transform duration-500 h-full w-full">
+                        <img id="a-banner-1" src="https://picsum.photos/600/250?random=1" class="w-full h-full object-cover flex-shrink-0" crossorigin="anonymous">
+                        <img id="a-banner-2" src="https://picsum.photos/600/250?random=2" class="w-full h-full object-cover flex-shrink-0" crossorigin="anonymous">
+                        <img id="a-banner-3" src="https://picsum.photos/600/250?random=3" class="w-full h-full object-cover flex-shrink-0" crossorigin="anonymous">
+                    </div>
+
+                    <button onclick="openModal('modal-edit-banners')" class="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white px-2.5 py-1 rounded-lg font-semibold text-[10px] shadow transition backdrop-blur-sm z-20">
+                        <i class="fa-solid fa-images mr-1"></i> ৩টি ব্যানার এডিট
+                    </button>
+                    
+                    <div class="absolute bottom-2 left-3 z-20">
+                        <button type="button" onclick="openModal('modal-edit-logo')" aria-label="অ্যাডমিন প্রোফাইল ছবি পরিবর্তন" class="admin-avatar-edit relative w-20 h-20 rounded-full border-[3px] border-white overflow-hidden bg-white shadow-lg cursor-pointer ring-2 ring-amber-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-teal-600">
+                            <img id="admin-logo-preview" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="w-full h-full object-cover">
+                            <span class="admin-avatar-edit-overlay absolute inset-0 bg-black/45 flex items-center justify-center text-white text-sm" aria-hidden="true"><i class="fa-solid fa-camera"></i></span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Admin Header Bar -->
+                <div class="flex justify-between items-center bg-white p-3 rounded-xl border shadow-sm">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-800 shop-title-text">দেলোয়ার হোসেন</h2>
+                        <p class="text-[10px] text-gray-500">অ্যাডমিন ড্যাশবোর্ড ওভারভিউ</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="switchMode('viewer')" class="bg-teal-50 text-teal-700 border border-teal-200 text-xs px-2.5 py-1.5 rounded-lg font-bold">
+                            <i class="fa-solid fa-eye mr-1"></i>ভিউয়ার
+                        </button>
+                        <div class="relative">
+                            <button onclick="toggleAdminMenu()" class="p-2 rounded-lg hover:bg-slate-100 text-slate-700 transition relative">
+                                <i class="fa-solid fa-ellipsis-vertical text-xl"></i>
+                                <span id="admin-menu-badge" class="hidden absolute top-1 right-1 bg-rose-600 text-white text-[9px] font-bold px-1 rounded-full">0</span>
+                            </button>
+                            <div id="admin-dropdown-menu" class="hidden absolute right-0 mt-2 w-60 bg-white border rounded-xl shadow-2xl z-50 text-xs text-slate-700 overflow-hidden">
+                                <button onclick="openModal('modal-backup-restore')" class="w-full text-left px-4 py-2.5 hover:bg-teal-50 border-b flex items-center gap-2 font-bold text-emerald-700">
+                                    <i class="fa-solid fa-cloud-arrow-down"></i> ডাটা ব্যাকআপ ও রিস্টোর
+                                </button>
+                                <button onclick="openNoticeEditor()" class="w-full text-left px-4 py-2.5 hover:bg-teal-50 border-b flex items-center gap-2 font-bold text-blue-700"><i class="fa-solid fa-bullhorn"></i> নোটিশ বোর্ড সেটিংস</button>
+                                <button onclick="openSplashSettings()" class="w-full text-left px-4 py-2.5 hover:bg-amber-50 border-b flex items-center gap-2 font-bold text-amber-700"><i class="fa-solid fa-wand-magic-sparkles"></i> স্টার্টআপ অ্যানিমেশন সেটিংস</button>
+                                <button onclick="openModal('modal-pending-orders')" class="w-full text-left px-4 py-2.5 hover:bg-teal-50 border-b flex items-center justify-between font-bold text-rose-600">
+                                    <span><i class="fa-solid fa-bell mr-1"></i> কাস্টমার অর্ডার এপ্রুভাল</span>
+                                    <span id="pending-orders-count-badge" class="bg-rose-600 text-white text-[9px] px-1.5 py-0.5 rounded-full">0</span>
+                                </button>
+                                <button onclick="openModal('modal-payments')" class="w-full text-left px-4 py-2.5 hover:bg-teal-50 border-b flex items-center gap-2 font-bold text-pink-600">
+                                    <i class="fa-solid fa-wallet"></i> পেমেন্ট নম্বর এডিট
+                                </button>
+                                <button onclick="openModal('modal-create-invoice')" class="w-full text-left px-4 py-2.5 hover:bg-teal-50 border-b flex items-center justify-between font-bold text-teal-700">
+                                    <span><i class="fa-solid fa-file-circle-plus mr-1"></i> ইনভয়েস জেনারেটর (JPG)</span>
+                                    <span id="admin-selected-badge" class="bg-teal-700 text-white text-[9px] px-1.5 py-0.5 rounded-full">0</span>
+                                </button>
+                                <button onclick="openModal('modal-due-popup')" class="w-full text-left px-4 py-2.5 hover:bg-teal-50 border-b flex items-center gap-2 font-bold text-amber-700"><i class="fa-solid fa-hand-holding-dollar"></i> বকেয়া/মকআপ হিসাব</button>
+                                <button onclick="openModal('modal-change-admin-password')" class="w-full text-left px-4 py-2.5 hover:bg-teal-50 border-b flex items-center gap-2 font-bold text-rose-700"><i class="fa-solid fa-key"></i> অ্যাডমিন পাসওয়ার্ড পরিবর্তন</button>
+                                <button onclick="openModal('modal-edit-title')" class="w-full text-left px-4 py-2.5 hover:bg-teal-50 border-b flex items-center gap-2 font-bold text-amber-600"><i class="fa-solid fa-pen-to-square"></i> শপের নাম এডিট</button>
+                                <button onclick="openModal('modal-manage-categories')" class="w-full text-left px-4 py-2.5 hover:bg-teal-50 border-b flex items-center gap-2 font-medium text-indigo-600"><i class="fa-solid fa-layer-group"></i> ক্যাটাগরি ম্যানেজমেন্ট</button>
+                                <button onclick="openModal('modal-edit-banners')" class="w-full text-left px-4 py-2.5 hover:bg-teal-50 border-b flex items-center gap-2 font-medium"><i class="fa-solid fa-images"></i> ৩টি ব্যানার এডিট</button>
+                                <button onclick="openModal('modal-add-expense')" class="w-full text-left px-4 py-2.5 hover:bg-teal-50 border-b flex items-center gap-2 font-medium text-rose-600"><i class="fa-solid fa-receipt"></i> দৈনিক খরচ এন্ট্রি</button>
+                                <button onclick="openModal('modal-stock')" class="w-full text-left px-4 py-2.5 hover:bg-teal-50 border-b flex items-center gap-2 font-medium text-emerald-600"><i class="fa-solid fa-boxes-stacked"></i> নতুন পণ্য যোগ করুন</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics Cards -->
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div onclick="openModal('modal-sales-popup')" class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between cursor-pointer hover:border-emerald-500 transition">
+                        <div>
+                            <p class="text-[11px] font-semibold text-gray-500">মোট বিক্রি</p>
+                            <h3 class="text-base font-extrabold text-emerald-600 mt-0.5" id="admin-total-sales">৳ ০</h3>
+                        </div>
+                        <div class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs"><i class="fa-solid fa-sack-dollar"></i></div>
+                    </div>
+
+                    <div onclick="openModal('modal-due-popup')" class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between cursor-pointer hover:border-amber-500 transition">
+                        <div>
+                            <p class="text-[11px] font-semibold text-gray-500">বকেয়া/মকআপ</p>
+                            <h3 class="text-base font-extrabold text-amber-600 mt-0.5" id="admin-total-due">৳ ০</h3>
+                        </div>
+                        <div class="w-8 h-8 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-xs"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                    </div>
+
+                    <div onclick="openModal('modal-stock')" class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between cursor-pointer hover:border-blue-500 transition">
+                        <div>
+                            <p class="text-[11px] font-semibold text-gray-500">স্টক প্রোডাক্ট</p>
+                            <h3 class="text-base font-extrabold text-blue-600 mt-0.5" id="admin-total-products">০ টি</h3>
+                        </div>
+                        <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xs"><i class="fa-solid fa-box-archive"></i></div>
+                    </div>
+
+                    <div onclick="openModal('modal-expense-view-popup')" class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between cursor-pointer hover:border-rose-500 transition">
+                        <div>
+                            <p class="text-[11px] font-semibold text-gray-500">দৈনিক খরচ</p>
+                            <h3 class="text-base font-extrabold text-rose-600 mt-0.5" id="admin-total-expense">৳ ০</h3>
+                        </div>
+                        <div class="w-8 h-8 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center text-xs"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                    </div>
+                </div>
+
+                <!-- Admin Stock Products Management Grid -->
+                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="text-xs font-bold text-slate-800"><i class="fa-solid fa-boxes-stacked text-blue-600 mr-1"></i> স্টক প্রোডাক্ট লিস্ট (পজ সেকশন)</h3>
+                        <button onclick="openModal('modal-stock')" class="text-[10px] bg-teal-700 text-white px-2 py-1 rounded font-bold">+ নতুন প্রোডাক্ট</button>
+                    </div>
+
+                    <div class="relative mb-2">
+                        <input type="text" id="admin-stock-search" onkeyup="filterAdminStockSearch()" placeholder="নাম বা কোড দিয়ে সার্চ করুন..." class="w-full text-xs border p-1.5 rounded-lg pl-7 bg-slate-50">
+                        <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-gray-400 text-xs"></i>
+                    </div>
+
+                    <div id="admin-stock-grid-list" class="grid grid-cols-2 gap-2.5 max-h-80 overflow-y-auto"></div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- ==================== POPUP MODALS ==================== -->
+
+    <!-- Modal: Manual Invoice Generator -->
+    <div id="modal-create-invoice" onclick="handleBackdropClick(event, 'modal-create-invoice')" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-4 shadow-2xl my-auto text-xs space-y-2 relative">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-bold text-sm text-teal-700"><i class="fa-solid fa-file-circle-plus mr-1"></i> ইনভয়েস জেনারেটর (JPG)</h3>
+                <div class="flex items-center gap-2">
+                    <button onclick="clearInvoiceSelection()" class="text-[10px] bg-rose-100 text-rose-700 font-bold px-2 py-1 rounded hover:bg-rose-200"><i class="fa-solid fa-rotate-left mr-1"></i>ক্লিয়ার</button>
+                    <button onclick="closeModal('modal-create-invoice')" class="text-gray-400 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-1.5">
+                <input type="text" id="admin-cust-name" onkeyup="updateInvoiceFields()" placeholder="কাস্টমারের নাম" class="border p-1.5 w-full rounded">
+                <input type="text" id="admin-cust-phone" onkeyup="updateInvoiceFields()" placeholder="ফোন নম্বর" class="border p-1.5 w-full rounded">
+            </div>
+            <input type="text" id="admin-cust-address" onkeyup="updateInvoiceFields()" placeholder="ঠিকানা" class="border p-1.5 w-full rounded">
+            <input type="date" id="admin-inv-date" onchange="updateInvoiceFields()" class="border p-1 w-full rounded bg-white font-semibold">
+
+            <div id="invoice-preview-container" class="invoice-card p-3 rounded-xl my-2 text-slate-800 bg-white border">
+                <div class="text-center border-b pb-2 mb-2">
+                    <h2 class="font-bold text-base text-teal-800 shop-title-text">দেলোয়ার হোসেন</h2>
+                    <p class="text-[10px] text-gray-500">মোবাইল: 01700000000</p>
+                </div>
+                <div class="text-[10px] space-y-0.5 border-b pb-2 mb-2 bg-slate-50 p-2 rounded border">
+                    <div class="flex justify-between">
+                        <p><b>ক্রেতা:</b> <span id="inv-preview-name">কাস্টমার</span></p>
+                        <p><b>তারিখ:</b> <span id="inv-preview-date">--</span></p>
+                    </div>
+                    <p><b>ফোন:</b> <span id="inv-preview-phone">017XXXXXXXX</span></p>
+                    <p><b>ঠিকানা:</b> <span id="inv-preview-address">ঢাকা, বাংলাদেশ</span></p>
+                </div>
+                <div id="admin-invoice-items" class="space-y-1.5 min-h-[50px] text-[11px] mb-2">
+                    <p class="italic text-gray-400">কোনো পণ্য নির্বাচন করা হয়নি</p>
+                </div>
+                <div class="border-t pt-1 flex justify-between font-bold text-xs text-teal-900">
+                    <span>সর্বমোট টাকা:</span>
+                    <span id="admin-inv-total-sum">৳ ০</span>
+                </div>
+            </div>
+
+            <button onclick="downloadInvoiceJPG()" class="bg-emerald-600 text-white font-bold py-2 rounded-lg w-full shadow hover:bg-emerald-700">
+                <i class="fa-solid fa-download"></i> ইনভয়েস JPG সেভ করুন
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal: Customer Pending Orders Approval -->
+    <div id="modal-pending-orders" onclick="handleBackdropClick(event, 'modal-pending-orders')" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-4 shadow-2xl max-h-[85vh] flex flex-col relative">
+            <div class="flex justify-between items-center border-b pb-2 mb-2">
+                <h3 class="font-bold text-sm text-rose-600"><i class="fa-solid fa-bell mr-1"></i> কাস্টমারের নতুন অর্ডার লিস্ট</h3>
+                <button onclick="closeModal('modal-pending-orders')" class="text-gray-400 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div id="admin-pending-orders-list" class="overflow-y-auto space-y-3 text-xs flex-1 my-1 pr-1">
+                <p class="italic text-gray-400 text-center py-4">কোনো পেন্ডিং অর্ডার নেই</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Data Backup & Restore -->
+    <div id="modal-backup-restore" onclick="handleBackdropClick(event, 'modal-backup-restore')" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-4 shadow-2xl space-y-3 text-xs relative">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-bold text-sm text-emerald-700 flex items-center gap-1.5"><i class="fa-solid fa-database"></i> ডাটা ব্যাকআপ ও রিস্টোর</h3>
+                <button onclick="closeModal('modal-backup-restore')" class="text-gray-400 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl space-y-1">
+                    <h4 class="font-bold text-emerald-900 flex items-center gap-1"><i class="fa-solid fa-download"></i> ডাটা ব্যাকআপ নিন</h4>
+                    <button onclick="exportDataBackup()" class="bg-emerald-700 text-white font-bold py-1.5 px-3 rounded-lg w-full shadow mt-1"><i class="fa-solid fa-file-export mr-1"></i> ব্যাকআপ ডাউনলোড করুন (JSON)</button>
+                </div>
+                <div class="bg-blue-50 border border-blue-200 p-3 rounded-xl space-y-1">
+                    <h4 class="font-bold text-blue-900 flex items-center gap-1"><i class="fa-solid fa-upload"></i> ডাটা রিস্টোর করুন</h4>
+                    <input type="file" id="backup-import-file" accept=".json" class="border p-1 w-full rounded bg-white mt-1">
+                    <button onclick="importDataBackup()" class="bg-blue-700 text-white font-bold py-1.5 px-3 rounded-lg w-full shadow mt-1"><i class="fa-solid fa-file-import mr-1"></i> ডাটা রিস্টোর করুন</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Payment Numbers Editor -->
+    <div id="modal-payments" onclick="handleBackdropClick(event, 'modal-payments')" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-4 shadow-2xl space-y-3 text-xs relative">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-bold text-sm text-pink-700"><i class="fa-solid fa-wallet"></i> পেমেন্ট নম্বর এডিট</h3>
+                <button onclick="closeModal('modal-payments')" class="text-gray-400 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-2">
+                <input type="text" id="input-bkash" value="01700000000" class="border p-2 w-full rounded font-bold" placeholder="বিকাশ">
+                <input type="text" id="input-nagad" value="01800000000" class="border p-2 w-full rounded font-bold" placeholder="নগদ">
+                <input type="text" id="input-rocket" value="01900000000" class="border p-2 w-full rounded font-bold" placeholder="রকেট">
+                <input type="text" id="input-bank" value="Bank Name, A/C: 123456789" class="border p-2 w-full rounded font-bold" placeholder="ব্যাংক">
+            </div>
+            <button onclick="savePaymentSettings()" class="bg-teal-700 text-white font-bold py-2 rounded-lg w-full shadow"><i class="fa-solid fa-floppy-disk mr-1"></i> সেভ করুন</button>
+        </div>
+    </div>
+
+    <!-- Modal: Notice Board Settings -->
+    <div id="modal-notice-editor" onclick="handleBackdropClick(event, 'modal-notice-editor')" class="hidden fixed inset-0 bg-black/60 z-[80] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-4 shadow-2xl max-h-[90vh] overflow-y-auto space-y-3 text-xs">
+            <div class="flex justify-between items-center border-b pb-2"><h3 class="font-bold text-sm text-blue-900"><i class="fa-solid fa-bullhorn mr-1"></i> নোটিশ বোর্ড সেটিংস</h3><button onclick="closeModal('modal-notice-editor')" class="p-1"><i class="fa-solid fa-xmark"></i></button></div>
+            <label class="flex items-center gap-2 font-bold"><input type="checkbox" id="notice-enabled"> অ্যাপ চালুর সময় নোটিশ দেখান</label>
+            <input id="notice-heading-input" class="border p-2 rounded w-full" placeholder="নোটিশের শিরোনাম">
+            <textarea id="notice-text-input" rows="4" class="border p-2 rounded w-full" placeholder="নোটিশের লেখা লিখুন"></textarea>
+            <label class="block font-semibold">JPG/PNG নোটিশ ছবি (ঐচ্ছিক)</label><input id="notice-image-input" type="file" accept="image/png,image/jpeg,image/webp" class="border p-2 rounded w-full">
+            <div class="flex gap-2"><button onclick="saveNoticeSettings()" class="flex-1 bg-blue-900 text-white font-bold py-2 rounded-lg">নোটিশ সেভ করুন</button><button onclick="clearNoticeImage()" class="px-3 bg-slate-100 rounded-lg">ছবি সরান</button></div>
+            <p class="text-gray-500">ছবি না দিলে টেক্সট নোটিশ দেখাবে।</p>
+        </div>
+    </div>
+
+    <!-- Modal: Due / Mockup List -->
+    <div id="modal-due-popup" onclick="handleBackdropClick(event, 'modal-due-popup')" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-4 shadow-2xl max-h-[85vh] flex flex-col relative">
+            <div class="flex justify-between items-center border-b pb-2 mb-2">
+                <h3 class="font-bold text-sm text-amber-700"><i class="fa-solid fa-hand-holding-dollar mr-1"></i> বকেয়া/মকআপ হিসাব</h3>
+                <button onclick="closeModal('modal-due-popup')" class="text-gray-400 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="text-xs font-bold text-slate-800 my-1">মোট বকেয়া: <span id="popup-due-amount" class="text-amber-600">৳ ০</span></div>
+            <div class="overflow-y-auto space-y-1.5 text-xs flex-1 my-1" id="due-popup-details-list"></div>
+            <button onclick="openAddDueModal()" class="bg-amber-600 text-white text-xs font-bold py-2 rounded-lg w-full mt-2 shadow">+ নতুন বকেয়া যোগ করুন</button>
+        </div>
+    </div>
+
+    <!-- Modal: Add Due Form -->
+    <div id="modal-add-due" onclick="handleBackdropClick(event, 'modal-add-due')" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-4 shadow-2xl space-y-2 text-xs relative">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-bold text-sm text-amber-700">নতুন বকেয়া যোগ করুন</h3>
+                <button onclick="closeModal('modal-add-due')" class="text-gray-400 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <input type="text" id="due-cust-name" placeholder="কাস্টমারের নাম" class="border p-2 w-full rounded">
+            <input type="text" id="due-cust-phone" placeholder="ফোন নম্বর" class="border p-2 w-full rounded">
+            <input type="number" id="due-amount" placeholder="পরিমাণ (৳)" class="border p-2 w-full rounded">
+            <label class="block text-gray-600">বকেয়া তৈরির তারিখ</label>
+            <input type="date" id="due-date" class="border p-2 w-full rounded bg-white font-semibold">
+            <label class="block text-gray-600">পরিশোধের তারিখ (পরিশোধ হলে দিন)</label>
+            <input type="date" id="due-paid-date" class="border p-2 w-full rounded bg-white font-semibold">
+            <button onclick="saveDueEntry()" class="bg-amber-600 text-white font-bold py-2 rounded-lg w-full mt-2 shadow">সেভ করুন</button>
+        </div>
+    </div>
+
+    <div id="modal-viewer-profile-edit" onclick="handleBackdropClick(event, 'modal-viewer-profile-edit')" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-4 shadow-2xl my-auto text-xs space-y-3">
+            <div class="flex justify-between items-center border-b pb-2"><h3 class="font-bold text-sm">আমার প্রোফাইল এডিট</h3><button onclick="closeModal('modal-viewer-profile-edit')" aria-label="বন্ধ করুন"><i class="fa-solid fa-xmark text-lg"></i></button></div>
+            <div class="flex flex-col items-center gap-2"><img id="viewer-profile-edit-preview" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="w-24 h-24 rounded-full object-cover border-2 border-teal-100"><label class="bg-teal-50 text-teal-800 rounded-lg px-3 py-2 font-bold cursor-pointer">প্রোফাইল ছবি নির্বাচন<input id="viewer-profile-image-file" type="file" accept="image/*" class="hidden" onchange="previewViewerProfileImage(event)"></label></div>
+            <label class="block font-bold">আপনার নাম</label><input id="viewer-profile-name-input" type="text" placeholder="আপনার নাম" class="border p-2 w-full rounded-lg">
+            <label class="block font-bold">ফোন নম্বর</label><input id="viewer-profile-phone-input" type="tel" placeholder="ফোন নম্বর" class="border p-2 w-full rounded-lg">
+            <label class="block font-bold">সম্পূর্ণ ঠিকানা</label><textarea id="viewer-profile-address-input" rows="3" placeholder="বাড়ি/গ্রাম, এলাকা, উপজেলা, জেলা" class="border p-2 w-full rounded-lg"></textarea>
+            <button onclick="saveViewerProfile()" class="bg-teal-700 text-white font-bold py-2.5 rounded-lg w-full">প্রোফাইল সেভ করুন</button>
+        </div>
+    </div>
+
+    <!-- Modal: Viewer Checkout Form -->
+    <div id="modal-viewer-checkout" onclick="handleBackdropClick(event, 'modal-viewer-checkout')" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-4 shadow-2xl my-auto text-xs space-y-2 relative">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-bold text-sm text-slate-800">অর্ডার ও পেমেন্ট বিবরণ</h3>
+                <button onclick="closeModal('modal-viewer-checkout')" class="text-gray-400 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <input type="text" id="checkout-cust-name" placeholder="আপনার নাম" class="border p-1.5 w-full rounded">
+            <input type="text" id="checkout-cust-phone" placeholder="ফোন নম্বর" class="border p-1.5 w-full rounded">
+            <input type="text" id="checkout-cust-address" placeholder="ঠিকানা" class="border p-1.5 w-full rounded">
+            
+            <div class="bg-slate-50 p-2 rounded border space-y-1">
+                <label class="block font-bold text-slate-700">পেমেন্ট মেথড নির্বাচন করুন:</label>
+                <div class="grid grid-cols-2 gap-1 text-[10px]">
+                    <label class="border p-1 rounded flex items-center gap-1 bg-white cursor-pointer"><input type="radio" name="pay_type" value="bkash" checked onclick="updateCheckoutPayInfo('bkash')"> <b class="text-pink-600">বিকাশ</b></label>
+                    <label class="border p-1 rounded flex items-center gap-1 bg-white cursor-pointer"><input type="radio" name="pay_type" value="nagad" onclick="updateCheckoutPayInfo('nagad')"> <b class="text-orange-600">নগদ</b></label>
+                    <label class="border p-1 rounded flex items-center gap-1 bg-white cursor-pointer"><input type="radio" name="pay_type" value="rocket" onclick="updateCheckoutPayInfo('rocket')"> <b class="text-purple-600">রকেট</b></label>
+                    <label class="border p-1 rounded flex items-center gap-1 bg-white cursor-pointer"><input type="radio" name="pay_type" value="bank" onclick="updateCheckoutPayInfo('bank')"> <b class="text-blue-700">ব্যাংক</b></label>
+                </div>
+                <p class="text-[11px] text-slate-700 pt-1">টাকা পাঠানোর নম্বর: <b id="checkout-target-no" class="text-teal-700 block">01700000000</b></p>
+            </div>
+
+            <input type="text" id="checkout-sender-no" placeholder="আপনার পেমেন্ট নম্বর" class="border p-1.5 w-full rounded">
+            <input type="text" id="checkout-txn-id" placeholder="ট্রানজেকশন আইডি (Txn ID)" class="border p-1.5 w-full rounded">
+            <button onclick="submitViewerOrder()" class="bg-emerald-600 text-white font-bold py-2 rounded w-full mt-2 shadow">অর্ডার নিশ্চিত করুন</button>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-change-admin-password" onclick="handleBackdropClick(event, 'modal-change-admin-password')" class="hidden fixed inset-0 bg-black/60 z-[120] flex items-center justify-center p-4"><div class="bg-white w-full max-w-sm rounded-2xl p-4 text-xs space-y-3"><div class="flex justify-between border-b pb-2"><h3 class="font-bold text-rose-700">অ্যাডমিন পাসওয়ার্ড পরিবর্তন</h3><button onclick="closeModal('modal-change-admin-password')" aria-label="বন্ধ করুন"><i class="fa-solid fa-xmark"></i></button></div><input type="password" id="admin-current-password" autocomplete="current-password" placeholder="বর্তমান পাসওয়ার্ড" class="border p-2 w-full rounded"><input type="password" id="admin-new-password" autocomplete="new-password" placeholder="নতুন পাসওয়ার্ড (কমপক্ষে 4 অক্ষর)" class="border p-2 w-full rounded"><input type="password" id="admin-confirm-password" autocomplete="new-password" placeholder="নতুন পাসওয়ার্ড আবার লিখুন" class="border p-2 w-full rounded"><button onclick="changeAdminPassword()" class="bg-rose-700 text-white font-bold py-2 rounded w-full">পাসওয়ার্ড সেভ করুন</button></div></div>
+    <div id="modal-edit-title" onclick="handleBackdropClick(event, 'modal-edit-title')" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"><div class="bg-white w-full max-w-sm rounded-2xl p-4 text-xs space-y-2"><div class="flex justify-between border-b pb-2"><h3 class="font-bold">শপের নাম এডিট</h3><button onclick="closeModal('modal-edit-title')"><i class="fa-solid fa-xmark"></i></button></div><input type="text" id="input-shop-title-name" value="দেলোয়ার হোসেন" class="border p-2 w-full rounded"><button onclick="saveShopTitleName()" class="bg-teal-700 text-white font-bold py-2 rounded w-full">আপডেট</button></div></div>
+    <div id="modal-sales-popup" onclick="handleBackdropClick(event, 'modal-sales-popup')" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"><div class="bg-white w-full max-w-sm rounded-2xl p-4 max-h-[85vh] flex flex-col"><div class="flex justify-between border-b pb-2 mb-2"><h3 class="font-bold text-emerald-700">বিক্রয়ের বিবরণ</h3><button onclick="closeModal('modal-sales-popup')"><i class="fa-solid fa-xmark"></i></button></div><div id="sales-history-details-list" class="overflow-y-auto space-y-2 text-xs flex-1"></div></div></div>
+    <div id="modal-splash-settings" onclick="handleBackdropClick(event, 'modal-splash-settings')" class="hidden fixed inset-0 bg-black/60 z-[110] flex items-center justify-center p-4"><div class="bg-white w-full max-w-sm rounded-2xl p-4 text-xs space-y-3 max-h-[90vh] overflow-y-auto"><div class="flex justify-between border-b pb-2"><h3 class="font-bold text-sm text-amber-700">স্টার্টআপ অ্যানিমেশন কাস্টমাইজ</h3><button onclick="closeModal('modal-splash-settings')"><i class="fa-solid fa-xmark"></i></button></div><p class="text-slate-600">অ্যাপ চালু হলে যে লোগো/অ্যানিমেশন দেখা যায়, এখানে সেটি বদলাতে পারবেন। “শুরু হচ্ছে...” লেখা ও লোডিং চিহ্ন থাকবে।</p><label class="block font-bold">লোগো/অ্যানিমেশনের ছবি (PNG/JPG/GIF)</label><input id="splash-image-file" type="file" accept="image/*" class="border p-2 rounded w-full" onchange="previewSplashImage(event)"><label class="block font-bold">অথবা ব্যাকগ্রাউন্ড ভিডিও (MP4/WebM, সর্বোচ্চ 12 MB)</label><input id="splash-video-file" type="file" accept="video/mp4,video/webm" class="border p-2 rounded w-full" onchange="previewSplashVideo(event)"><div class="flex items-center gap-2"><img id="splash-settings-preview" class="w-16 h-16 object-contain rounded-lg border bg-slate-50" alt="প্রিভিউ"><span class="text-slate-500">ছবি দিলে লোগো বদলাবে; ভিডিও দিলে পেছনে চলবে।</span></div><label class="block font-bold">অ্যানিমেশন কতক্ষণ থাকবে?</label><select id="splash-duration" class="border p-2 rounded w-full"><option value="5">৫ সেকেন্ড</option><option value="7">৭ সেকেন্ড</option></select><div class="flex gap-2"><button onclick="resetSplashMedia()" class="border border-slate-300 text-slate-700 font-bold py-2 rounded-lg flex-1">ডিফল্টে ফেরত</button><button onclick="saveSplashSettings()" class="bg-amber-600 text-white font-bold py-2 rounded-lg flex-1">সেভ করুন</button></div></div></div>
+    <div id="modal-edit-banners" onclick="handleBackdropClick(event, 'modal-edit-banners')" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"><div class="bg-white w-full max-w-sm rounded-2xl p-4 text-xs space-y-2"><div class="flex justify-between border-b pb-2"><h3 class="font-bold">৩টি ব্যানার এডিট</h3><button onclick="closeModal('modal-edit-banners')"><i class="fa-solid fa-xmark"></i></button></div><div class="space-y-2"><div class="border p-2 rounded flex justify-between"><span>Banner 1</span><input type="file" accept="image/*" class="w-36" onchange="triggerCropForBanner(0, event)"></div><div class="border p-2 rounded flex justify-between"><span>Banner 2</span><input type="file" accept="image/*" class="w-36" onchange="triggerCropForBanner(1, event)"></div><div class="border p-2 rounded flex justify-between"><span>Banner 3</span><input type="file" accept="image/*" class="w-36" onchange="triggerCropForBanner(2, event)"></div></div></div></div>
+    <div id="modal-cropper" onclick="handleBackdropClick(event, 'modal-cropper')" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"><div class="bg-white w-full max-w-sm rounded-2xl p-4 space-y-2 text-xs"><div class="flex justify-between border-b pb-2"><h3 class="font-bold">ছবি ক্রপ করুন</h3><button onclick="closeModal('modal-cropper')"><i class="fa-solid fa-xmark"></i></button></div><div class="max-h-60 overflow-hidden border rounded"><img id="cropper-target-img" class="max-w-full"></div><button onclick="confirmCropImage()" class="bg-teal-700 text-white font-bold py-2 rounded w-full">ক্রপ সেভ</button></div></div>
+    <div id="modal-expense-view-popup" onclick="handleBackdropClick(event, 'modal-expense-view-popup')" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"><div class="bg-white w-full max-w-sm rounded-2xl p-4 max-h-[85vh] flex flex-col"><div class="flex justify-between border-b pb-2 mb-2"><h3 class="font-bold text-rose-700">দৈনিক খরচের হিস্টোরি</h3><button onclick="closeModal('modal-expense-view-popup')"><i class="fa-solid fa-xmark"></i></button></div><div id="expense-popup-details-list" class="overflow-y-auto space-y-1.5 text-xs flex-1"></div><button onclick="closeModal('modal-expense-view-popup'); openModal('modal-add-expense')" class="bg-rose-600 text-white font-bold py-2 rounded w-full mt-2">+ নতুন খরচ</button></div></div>
+    <div id="modal-add-expense" onclick="handleBackdropClick(event, 'modal-add-expense')" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"><div class="bg-white w-full max-w-sm rounded-2xl p-4 space-y-2 text-xs"><div class="flex justify-between border-b pb-2"><h3 class="font-bold text-rose-700">দৈনিক খরচ এন্ট্রি</h3><button onclick="closeModal('modal-add-expense')"><i class="fa-solid fa-xmark"></i></button></div><input type="text" id="exp-title" placeholder="খরচের বিবরণ" class="border p-2 w-full rounded"><input type="number" id="exp-amount" placeholder="পরিমাণ (৳)" class="border p-2 w-full rounded"><input type="date" id="exp-date" class="border p-2 w-full rounded"><button onclick="addExpense()" class="bg-rose-600 text-white font-bold py-2 rounded w-full">সেভ করুন</button></div></div>
+    <div id="modal-manage-categories" onclick="handleBackdropClick(event, 'modal-manage-categories')" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"><div class="bg-white w-full max-w-sm rounded-2xl p-4 max-h-[85vh] flex flex-col text-xs"><div class="flex justify-between border-b pb-2 mb-2"><h3 class="font-bold text-teal-700">ক্যাটাগরি ম্যানেজমেন্ট</h3><button onclick="closeModal('modal-manage-categories')"><i class="fa-solid fa-xmark"></i></button></div><input type="text" id="cat-title-input" placeholder="ক্যাটাগরির নাম" class="border p-1.5 w-full rounded mb-1"><input type="file" id="cat-img-input" accept="image/*" class="border p-1 w-full rounded mb-2"><button onclick="saveCategory()" class="bg-teal-700 text-white font-bold py-1.5 rounded w-full mb-2">+ সেভ করুন</button><div id="admin-category-list-container" class="overflow-y-auto space-y-1.5 flex-1 border-t pt-2"></div></div></div>
+    <div id="modal-edit-logo" onclick="handleBackdropClick(event, 'modal-edit-logo')" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"><div class="bg-white w-full max-w-sm rounded-2xl p-4 text-xs space-y-2"><div class="flex justify-between border-b pb-2"><h3 class="font-bold">প্রোফাইল ফটো পরিবর্তন</h3><button onclick="closeModal('modal-edit-logo')"><i class="fa-solid fa-xmark"></i></button></div><input type="file" accept="image/*" class="border p-1.5 w-full rounded" onchange="updateAdminLogo(event)"></div></div>
+    <div id="modal-stock" onclick="handleBackdropClick(event, 'modal-stock')" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"><div class="bg-white w-full max-w-sm rounded-2xl p-4 space-y-2 text-xs"><div class="flex justify-between border-b pb-2"><h3 class="font-bold text-emerald-700">নতুন পণ্য যোগ করুন</h3><button onclick="closeModal('modal-stock')"><i class="fa-solid fa-xmark"></i></button></div><input type="text" id="p-name" placeholder="পণ্যের নাম" class="border p-2 w-full rounded"><input type="number" id="p-price" placeholder="মূল্য (৳)" class="border p-2 w-full rounded"><input type="number" id="p-qty" placeholder="পরিমাণ" class="border p-2 w-full rounded"><select id="p-category" class="border p-2 w-full rounded bg-white"></select><input type="file" id="p-img-file" accept="image/*" class="border p-1 w-full rounded"><button onclick="addNewProduct()" class="bg-emerald-600 text-white font-bold py-2 rounded w-full">স্টকে যোগ করুন</button></div></div>
+
+
+    <!-- JavaScript Core Script -->
+    <script>
+        // INDEXEDDB DATABASE INITIALIZATION
+        let db;
+        const dbRequest = indexedDB.open('BismillahAppDB_V2', 1);
+
+        dbRequest.onupgradeneeded = function(e) {
+            db = e.target.result;
+            if (!db.objectStoreNames.contains('appData')) {
+                db.createObjectStore('appData', { keyPath: 'key' });
+            }
+        };
+
+        dbRequest.onsuccess = function(e) {
+            db = e.target.result;
+            loadAppStateFromDB();
+        };
+
+        let adminPassword = localStorage.getItem('bcs_admin_password') || '1234';
+        let paymentMethods = { bkash: '01700000000', nagad: '01800000000', rocket: '01900000000', bank: 'Bank Name, A/C: 123456789' };
+        let appLogoSrc = 'assets/icon.png';
+        // Three cover banners are persisted in IndexedDB and included in JSON backups.
+        let coverBanners = [
+            'https://picsum.photos/600/250?random=1',
+            'https://picsum.photos/600/250?random=2',
+            'https://picsum.photos/600/250?random=3'
+        ];
+        let noticeSettings = { enabled: false, title: 'গুরুত্বপূর্ণ নোটিশ', text: '', image: '' };
+        let splashSettings = { image: '', video: '', duration: 5 };
+        let splashHideTimer = null;
+        let editingDueId = null;
+        let categories = [
+            { id: 1, name: 'Craft', img: 'https://cdn-icons-png.flaticon.com/512/3081/3081559.png' },
+            { id: 2, name: 'Light', img: 'https://cdn-icons-png.flaticon.com/512/702/702814.png' }
+        ];
+        let products = [];
+        let salesHistory = [];
+        let expenses = [];
+        let dues = [];
+        let pendingOrders = [];
+        let userOrdersHistory = [];
+        let viewerProfile = { name: '', phone: '', address: '', image: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png' };
+        let viewerProfilePendingImage = '';
+
+        let cart = [];
+        let adminInvoiceItems = [];
+        let activeCategory = 'All';
+        let currentBannerIndex = 0;
+        let mainCropper = null;
+        let targetBannerIndex = 0;
+
+        function saveAppStateToStorage() {
+            if (!db) return;
+            const tx = db.transaction('appData', 'readwrite');
+            const store = tx.objectStore('appData');
+
+            store.put({ key: 'products', value: products });
+            store.put({ key: 'categories', value: categories });
+            store.put({ key: 'salesHistory', value: salesHistory });
+            store.put({ key: 'expenses', value: expenses });
+            store.put({ key: 'dues', value: dues });
+            store.put({ key: 'pendingOrders', value: pendingOrders });
+            store.put({ key: 'userOrdersHistory', value: userOrdersHistory });
+            store.put({ key: 'paymentMethods', value: paymentMethods });
+            store.put({ key: 'appLogoSrc', value: appLogoSrc });
+            store.put({ key: 'coverBanners', value: coverBanners });
+            store.put({ key: 'noticeSettings', value: noticeSettings });
+            store.put({ key: 'splashSettings', value: splashSettings });
+            store.put({ key: 'viewerProfile', value: viewerProfile });
+            store.put({ key: 'appTitle', value: localStorage.getItem('app_title_name') || 'Bismillah Craft & Studio' });
+            store.put({ key: 'shopTitle', value: localStorage.getItem('shop_title_name') || 'দেলোয়ার হোসেন' });
+            store.put({ key: 'adminPassword', value: adminPassword });
+        }
+
+        function loadAppStateFromDB() {
+            if (!db) return;
+            const tx = db.transaction('appData', 'readonly');
+            const store = tx.objectStore('appData');
+
+            const getReq = store.getAll();
+            getReq.onsuccess = function() {
+                const items = getReq.result;
+                items.forEach(item => {
+                    if (item.key === 'products') products = item.value || [];
+                    if (item.key === 'categories') categories = item.value || categories;
+                    if (item.key === 'salesHistory') salesHistory = item.value || [];
+                    if (item.key === 'expenses') expenses = item.value || [];
+                    if (item.key === 'dues') dues = item.value || [];
+                    if (item.key === 'pendingOrders') pendingOrders = item.value || [];
+                    if (item.key === 'userOrdersHistory') userOrdersHistory = item.value || [];
+                    if (item.key === 'paymentMethods') paymentMethods = item.value || paymentMethods;
+                    if (item.key === 'appLogoSrc') appLogoSrc = item.value || appLogoSrc;
+                    if (item.key === 'coverBanners' && Array.isArray(item.value)) coverBanners = item.value;
+                    if (item.key === 'noticeSettings') noticeSettings = item.value || noticeSettings;
+                    if (item.key === 'splashSettings') splashSettings = item.value || splashSettings;
+                    if (item.key === 'viewerProfile') viewerProfile = { ...viewerProfile, ...(item.value || {}) };
+                    if (item.key === 'appTitle') localStorage.setItem('app_title_name', item.value);
+                    if (item.key === 'shopTitle' && item.value) localStorage.setItem('shop_title_name', item.value);
+                    if (item.key === 'adminPassword' && item.value) { adminPassword = item.value; localStorage.setItem('bcs_admin_password', item.value); }
+                });
+
+                applyAppLogoUI();
+                applyShopTitleUI();
+                applyCoverBannersUI();
+                applyNoticeSettings();
+                applySplashSettings();
+                applyViewerProfileUI();
+                scheduleSplashHide();
+                renderCategoriesUI();
+                renderProductCatalog();
+                renderUserOrderHistory();
+                renderPendingOrdersList();
+                updateDueUI();
+                updateExpenseUI();
+                renderSalesHistoryDetails();
+                updateInvoiceFields();
+            };
+        }
+
+        function compressImage(base64Str, maxWidth = 300, quality = 0.5) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.src = base64Str;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const scaleSize = maxWidth / img.width;
+                    canvas.width = maxWidth;
+                    canvas.height = img.height * scaleSize;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    resolve(canvas.toDataURL('image/jpeg', quality));
+                };
+            });
+        }
+
+        function scheduleSplashHide() {
+            if (splashHideTimer) clearTimeout(splashHideTimer);
+            const duration = [5, 7].includes(Number(splashSettings.duration)) ? Number(splashSettings.duration) : 5;
+            splashHideTimer = setTimeout(() => {
+                const splash = document.getElementById('app-splash');
+                if (splash) { splash.classList.add('splash-hide'); setTimeout(() => splash.remove(), 400); }
+                if (noticeSettings.enabled) showNotice();
+            }, duration * 1000);
+        }
+
+        window.addEventListener('load', () => {
+            // Fallback in case IndexedDB is unavailable; normal timing is scheduled after settings load.
+            setTimeout(() => { if (document.getElementById('app-splash') && !splashHideTimer) scheduleSplashHide(); }, 1000);
+        });
+
+        document.getElementById('exp-date').valueAsDate = new Date();
+        document.getElementById('due-date').valueAsDate = new Date();
+        document.getElementById('admin-inv-date').valueAsDate = new Date();
+
+        startAutoBannerSlider();
+
+        async function addNewProduct() {
+            const name = document.getElementById('p-name').value;
+            const price = document.getElementById('p-price').value;
+            const qty = document.getElementById('p-qty').value;
+            const category = document.getElementById('p-category').value;
+            const imgFile = document.getElementById('p-img-file').files[0];
+
+            if (!name || !price || !qty) return alert('পণ্যের তথ্য সঠিকভাবে দিন!');
+
+            const saveProc = async (imgSrc) => {
+                let finalImg = imgSrc || 'https://via.placeholder.com/150';
+                if (imgSrc && imgSrc.startsWith('data:image')) {
+                    finalImg = await compressImage(imgSrc);
+                }
+
+                products.push({ id: Date.now(), name, price: parseFloat(price), stock: parseInt(qty), category, img: finalImg });
+                saveAppStateToStorage();
+                renderProductCatalog();
+                closeModal('modal-stock');
+
+                document.getElementById('p-name').value = '';
+                document.getElementById('p-price').value = '';
+                document.getElementById('p-qty').value = '';
+                alert('পণ্য সেভ করা হয়েছে!');
+            };
+
+            if (imgFile) {
+                const reader = new FileReader();
+                reader.onload = (e) => saveProc(e.target.result);
+                reader.readAsDataURL(imgFile);
+            } else saveProc(null);
+        }
+
+        async function saveCategory() {
+            const title = document.getElementById('cat-title-input').value;
+            const imgFile = document.getElementById('cat-img-input').files[0];
+            if (!title) return alert('ক্যাটাগরির নাম দিন!');
+
+            const saveProc = async (imgSrc) => {
+                let finalImg = imgSrc || 'https://cdn-icons-png.flaticon.com/512/3081/3081559.png';
+                if (imgSrc && imgSrc.startsWith('data:image')) {
+                    finalImg = await compressImage(imgSrc, 150, 0.7);
+                }
+
+                categories.push({ id: Date.now(), name: title, img: finalImg });
+                saveAppStateToStorage();
+                document.getElementById('cat-title-input').value = '';
+                renderCategoriesUI();
+                alert('ক্যাটাগরি সেভ হয়েছে!');
+            };
+
+            if (imgFile) {
+                const reader = new FileReader();
+                reader.onload = (e) => saveProc(e.target.result);
+                reader.readAsDataURL(imgFile);
+            } else saveProc(null);
+        }
+
+        function deleteProduct(id) {
+            if(confirm('পণ্যটি সরাতে চান?')) {
+                products = products.filter(p => p.id !== id);
+                saveAppStateToStorage();
+                renderProductCatalog();
+            }
+        }
+
+        function deleteCategory(id) {
+            if(confirm('ক্যাটাগরি মুছে ফেলতে চান?')) {
+                categories = categories.filter(c => c.id !== id);
+                saveAppStateToStorage();
+                renderCategoriesUI();
+            }
+        }
+
+        function addExpense() {
+            const title = document.getElementById('exp-title').value;
+            const amount = parseFloat(document.getElementById('exp-amount').value);
+            const date = document.getElementById('exp-date').value || new Date().toISOString().split('T')[0];
+
+            if (!title || isNaN(amount)) return alert('বিবরণ ও পরিমাণ দিন!');
+
+            expenses.push({ id: Date.now(), title, amount, date });
+            saveAppStateToStorage();
+            closeModal('modal-add-expense');
+            updateExpenseUI();
+            document.getElementById('exp-title').value = '';
+            document.getElementById('exp-amount').value = '';
+            alert('দৈনিক খরচ সেভ হয়েছে!');
+        }
+
+        function saveDueEntry() {
+            const name = document.getElementById('due-cust-name').value.trim();
+            const phone = document.getElementById('due-cust-phone').value.trim();
+            const amount = parseFloat(document.getElementById('due-amount').value);
+            const date = document.getElementById('due-date').value || new Date().toISOString().split('T')[0];
+            const paidDate = document.getElementById('due-paid-date').value || '';
+            if (!name || !Number.isFinite(amount) || amount < 0) return alert('নাম ও সঠিক পরিমাণ লিখুন!');
+            if (editingDueId !== null) {
+                const old = dues.find(d => d.id === editingDueId);
+                if (old) Object.assign(old, { name, phone, amount, date, paidDate });
+            } else {
+                dues.push({ id: Date.now(), name, phone, amount, date, paidDate });
+            }
+            editingDueId = null;
+            ['due-cust-name','due-cust-phone','due-amount','due-paid-date'].forEach(id => document.getElementById(id).value = '');
+            saveAppStateToStorage(); closeModal('modal-add-due'); updateDueUI(); openModal('modal-due-popup');
+            alert('বকেয়ার তথ্য সেভ হয়েছে!');
+        }
+
+        function editDueItem(id) {
+            const d = dues.find(item => item.id === id); if (!d) return;
+            editingDueId = id;
+            document.getElementById('due-cust-name').value = d.name || '';
+            document.getElementById('due-cust-phone').value = d.phone || '';
+            document.getElementById('due-amount').value = d.amount ?? '';
+            document.getElementById('due-date').value = d.date || '';
+            document.getElementById('due-paid-date').value = d.paidDate || '';
+            const heading = document.querySelector('#modal-add-due h3'); if (heading) heading.textContent = 'বকেয়ার তথ্য এডিট করুন';
+            closeModal('modal-due-popup'); openModal('modal-add-due');
+        }
+
+        function deleteDueItem(id) {
+            if (confirm('বকেয়াটি মুছে ফেলতে চান?')) {
+                dues = dues.filter(d => d.id !== id);
+                saveAppStateToStorage();
+                updateDueUI();
+            }
+        }
+
+        function approveCustomerOrder(orderId) {
+            let order = pendingOrders.find(o => o.id === orderId);
+            if (order) {
+                if (order.items && Array.isArray(order.items)) {
+                    order.items.forEach(orderedItem => {
+                        let stockProd = products.find(p => p.id === orderedItem.pId);
+                        if (stockProd) {
+                            stockProd.stock = Math.max(0, stockProd.stock - orderedItem.qty);
+                        }
+                    });
+                }
+
+                order.status = 'Approved';
+                let uOrd = userOrdersHistory.find(u => u.id === orderId);
+                if (uOrd) uOrd.status = 'Approved';
+
+                salesHistory.push({ name: order.name, phone: order.phone, items: order.itemsSummary, total: order.totalSum, date: order.date });
+                saveAppStateToStorage();
+                renderSalesHistoryDetails();
+
+                updateAdminNotificationBadges();
+                renderPendingOrdersList();
+                renderUserOrderHistory();
+                renderProductCatalog();
+
+                document.getElementById('viewer-approved-badge').classList.remove('hidden');
+                alert(`অর্ডার #${orderId} এপ্রুভ করা হয়েছে!`);
+            }
+        }
+
+        function applyViewerProfileUI() {
+            const p = viewerProfile || {};
+            const img = p.image || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+            const imageEl = document.getElementById('user-profile-img-tab');
+            if (imageEl) imageEl.src = img;
+            const preview = document.getElementById('viewer-profile-edit-preview');
+            if (preview) preview.src = img;
+            const nameEl = document.getElementById('user-display-name'); if (nameEl) nameEl.textContent = p.name || 'ব্যবহারকারীর নাম';
+            const phoneEl = document.getElementById('user-display-phone'); if (phoneEl) phoneEl.textContent = p.phone || 'ফোন নম্বর যোগ করুন';
+            const addressEl = document.getElementById('user-display-address'); if (addressEl) addressEl.textContent = p.address || 'ঠিকানা যোগ করুন';
+        }
+
+        function openViewerProfileEditor() {
+            viewerProfilePendingImage = viewerProfile.image || '';
+            document.getElementById('viewer-profile-name-input').value = viewerProfile.name || '';
+            document.getElementById('viewer-profile-phone-input').value = viewerProfile.phone || '';
+            document.getElementById('viewer-profile-address-input').value = viewerProfile.address || '';
+            document.getElementById('viewer-profile-edit-preview').src = viewerProfilePendingImage || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+            document.getElementById('viewer-profile-image-file').value = '';
+            openModal('modal-viewer-profile-edit');
+        }
+
+        async function previewViewerProfileImage(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) return alert('একটি ছবি নির্বাচন করুন।');
+            const reader = new FileReader();
+            reader.onload = async e => {
+                try { viewerProfilePendingImage = await compressImage(e.target.result, 320, 0.72); }
+                catch (_) { viewerProfilePendingImage = e.target.result; }
+                document.getElementById('viewer-profile-edit-preview').src = viewerProfilePendingImage;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function saveViewerProfile() {
+            viewerProfile = {
+                name: document.getElementById('viewer-profile-name-input').value.trim(),
+                phone: document.getElementById('viewer-profile-phone-input').value.trim(),
+                address: document.getElementById('viewer-profile-address-input').value.trim(),
+                image: viewerProfilePendingImage || viewerProfile.image || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'
+            };
+            applyViewerProfileUI();
+            saveAppStateToStorage();
+            closeModal('modal-viewer-profile-edit');
+            alert('আপনার প্রোফাইল সেভ হয়েছে।');
+        }
+
+        function submitViewerOrder() {
+            const name = document.getElementById('checkout-cust-name').value;
+            const phone = document.getElementById('checkout-cust-phone').value;
+            const address = document.getElementById('checkout-cust-address').value;
+            const senderNo = document.getElementById('checkout-sender-no').value;
+            const txnId = document.getElementById('checkout-txn-id').value;
+            const payType = document.querySelector('input[name="pay_type"]:checked').value;
+
+            if (!name || !phone || !address || !senderNo) return alert('নাম, ফোন, ঠিকানা ও পেমেন্ট নম্বর পূরণ করুন!');
+            // Keep the latest checkout contact details as the customer's saved profile.
+            viewerProfile = { ...viewerProfile, name: name.trim(), phone: phone.trim(), address: address.trim() };
+            applyViewerProfileUI();
+
+            let totalSum = cart.reduce((a, b) => a + (b.price * b.qty), 0);
+            let orderId = `ORD-${Date.now().toString().slice(-4)}`;
+            let itemsSummary = cart.map(i => `${i.name} (x${i.qty})`).join(', ');
+
+            let newOrderObj = {
+                id: orderId, name, phone, address, payType, senderNo, txnId, 
+                items: [...cart], itemsSummary, totalSum,
+                date: new Date().toISOString().split('T')[0], status: 'Pending'
+            };
+
+            pendingOrders.unshift(newOrderObj);
+            userOrdersHistory.unshift({ id: orderId, date: newOrderObj.date, items: itemsSummary, total: totalSum, status: 'Pending' });
+
+            saveAppStateToStorage();
+            cart = [];
+            updateCartUI();
+            closeModal('modal-viewer-checkout');
+            updateAdminNotificationBadges();
+            renderUserOrderHistory();
+            renderPendingOrdersList();
+
+            alert('আপনার অর্ডার সফলভাবে প্রেরিত হয়েছে!');
+        }
+
+        function clearInvoiceSelection() {
+            adminInvoiceItems = [];
+            document.getElementById('admin-cust-name').value = '';
+            document.getElementById('admin-cust-phone').value = '';
+            document.getElementById('admin-cust-address').value = '';
+            renderAdminInvoiceItems();
+            renderProductCatalog();
+        }
+
+        function downloadInvoiceJPG() {
+            if (adminInvoiceItems.length === 0) return alert('ইনভয়েসের জন্য পণ্য নির্বাচন করুন!');
+            updateInvoiceFields();
+            const previewArea = document.getElementById('invoice-preview-container');
+            const custName = document.getElementById('admin-cust-name').value || 'Customer';
+
+            html2canvas(previewArea, { scale: 2, useCORS: true, allowTaint: true }).then(canvas => {
+                const imageURI = canvas.toDataURL('image/jpeg', 0.95);
+                const link = document.createElement('a');
+                link.download = `Invoice_${custName}_${Date.now()}.jpg`;
+                link.href = imageURI;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                clearInvoiceSelection();
+                closeModal('modal-create-invoice');
+                alert('ইনভয়েস সেভ হয়েছে!');
+            });
+        }
+
+        function exportDataBackup() {
+            const backupObj = {
+                products, categories, dues, expenses, salesHistory, paymentMethods,
+                appName: localStorage.getItem('app_title_name') || 'Bismillah Craft & Studio',
+                appLogo: appLogoSrc, coverBanners, noticeSettings, splashSettings, viewerProfile,
+                pendingOrders, userOrdersHistory
+            };
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupObj, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `Bismillah_Craft_Backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            alert('ব্যাকআপ ফাইল তৈরি হয়েছে!');
+        }
+
+        function importDataBackup() {
+            const fileInput = document.getElementById('backup-import-file');
+            const file = fileInput.files[0];
+
+            if (!file) return alert('JSON ব্যাকআপ ফাইল নির্বাচন করুন!');
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (importedData.products) products = importedData.products;
+                    if (importedData.categories) categories = importedData.categories;
+                    if (importedData.dues) dues = importedData.dues;
+                    if (importedData.expenses) expenses = importedData.expenses;
+                    if (importedData.salesHistory) salesHistory = importedData.salesHistory;
+                    if (importedData.paymentMethods) paymentMethods = importedData.paymentMethods;
+                    if (importedData.appName) { localStorage.setItem('shop_title_name', importedData.appName); localStorage.setItem('app_title_name', importedData.appName); }
+                    if (importedData.appLogo) appLogoSrc = importedData.appLogo;
+                    if (Array.isArray(importedData.coverBanners)) coverBanners = importedData.coverBanners;
+                    if (importedData.noticeSettings) noticeSettings = importedData.noticeSettings;
+                    if (importedData.splashSettings) splashSettings = importedData.splashSettings;
+                    if (importedData.viewerProfile) viewerProfile = { ...viewerProfile, ...importedData.viewerProfile };
+                    if (Array.isArray(importedData.pendingOrders)) pendingOrders = importedData.pendingOrders;
+                    if (Array.isArray(importedData.userOrdersHistory)) userOrdersHistory = importedData.userOrdersHistory;
+
+                    saveAppStateToStorage();
+                    applyAppLogoUI();
+                    applyCoverBannersUI();
+                    applyNoticeSettings();
+                    applySplashSettings();
+                    applyViewerProfileUI();
+                    renderCategoriesUI();
+                    renderProductCatalog();
+                    updateDueUI();
+                    updateExpenseUI();
+                    renderSalesHistoryDetails();
+
+                    closeModal('modal-backup-restore');
+                    alert('ডাটা সফলভাবে রিস্টোর হয়েছে!');
+                } catch (err) {
+                    alert('ভুল ব্যাকআপ ফাইল নির্বাচন করা হয়েছে!');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function openSplashSettings() {
+            document.getElementById('splash-duration').value = String(splashSettings.duration || 5);
+            document.getElementById('splash-settings-preview').src = splashSettings.image || appLogoSrc;
+            document.getElementById('splash-image-file').value = '';
+            document.getElementById('splash-video-file').value = '';
+            openModal('modal-splash-settings');
+        }
+
+        async function previewSplashImage(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            if (file.size > 10 * 1024 * 1024) { alert('ছবিটি ১০ MB-এর কম দিন।'); event.target.value = ''; return; }
+            try {
+                const data = await new Promise((resolve, reject) => { const r = new FileReader(); r.onload = e => resolve(e.target.result); r.onerror = reject; r.readAsDataURL(file); });
+                splashSettings.image = await compressImage(data, 600, 0.82);
+                splashSettings.video = '';
+                document.getElementById('splash-video-file').value = '';
+                document.getElementById('splash-settings-preview').src = splashSettings.image;
+            } catch (_) { alert('ছবিটি পড়া যায়নি।'); }
+        }
+
+        async function previewSplashVideo(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            if (file.size > 12 * 1024 * 1024) { alert('ভিডিওটি ১২ MB-এর কম দিন, নাহলে ব্যাকআপ ফাইল অনেক বড় হবে।'); event.target.value = ''; return; }
+            try {
+                const data = await new Promise((resolve, reject) => { const r = new FileReader(); r.onload = e => resolve(e.target.result); r.onerror = reject; r.readAsDataURL(file); });
+                splashSettings.video = data;
+                splashSettings.image = '';
+                document.getElementById('splash-image-file').value = '';
+                document.getElementById('splash-settings-preview').src = appLogoSrc;
+            } catch (_) { alert('ভিডিওটি পড়া যায়নি।'); }
+        }
+
+        function applySplashSettings() {
+            const splash = document.getElementById('app-splash');
+            const logo = document.getElementById('splash-logo');
+            const video = document.getElementById('splash-custom-media');
+            if (!splash || !logo || !video) return;
+            logo.src = splashSettings.image || appLogoSrc;
+            if (splashSettings.video) {
+                video.src = splashSettings.video;
+                video.style.display = 'block';
+                const playPromise = video.play();
+                if (playPromise && playPromise.catch) playPromise.catch(() => {});
+            } else {
+                video.pause(); video.removeAttribute('src'); video.load(); video.style.display = 'none';
+            }
+        }
+
+        function saveSplashSettings() {
+            splashSettings.duration = Number(document.getElementById('splash-duration').value) === 7 ? 7 : 5;
+            saveAppStateToStorage();
+            applySplashSettings();
+            closeModal('modal-splash-settings');
+            alert('স্টার্টআপ অ্যানিমেশন সেটিংস সেভ হয়েছে। পরেরবার অ্যাপ চালু হলে পরিবর্তন দেখা যাবে।');
+        }
+
+        function resetSplashMedia() {
+            splashSettings = { image: '', video: '', duration: 5 };
+            document.getElementById('splash-duration').value = '5';
+            document.getElementById('splash-image-file').value = '';
+            document.getElementById('splash-video-file').value = '';
+            document.getElementById('splash-settings-preview').src = appLogoSrc;
+            applySplashSettings();
+        }
+
+        function applyAppLogoUI() {
+            const viewerLogo = document.getElementById('viewer-app-logo-header');
+            const splashLogo = document.getElementById('splash-logo');
+            const adminLogo = document.getElementById('admin-logo-preview');
+            if (viewerLogo) viewerLogo.src = appLogoSrc;
+            if (splashLogo) splashLogo.src = (splashSettings && splashSettings.image) || appLogoSrc;
+            if (adminLogo) adminLogo.src = appLogoSrc;
+        }
+
+        function applyShopTitleUI() {
+            const title = localStorage.getItem('shop_title_name') || 'দেলোয়ার হোসেন';
+            document.querySelectorAll('.shop-title-text').forEach(el => el.innerText = title);
+            const input = document.getElementById('input-shop-title-name');
+            if (input) input.value = title;
+        }
+
+        function applyNoticeSettings() {
+            const img = document.getElementById('notice-image');
+            document.getElementById('notice-title').textContent = noticeSettings.title || 'গুরুত্বপূর্ণ নোটিশ';
+            document.getElementById('notice-text').textContent = noticeSettings.text || '';
+            if (noticeSettings.image) { img.src = noticeSettings.image; img.classList.remove('hidden'); }
+            else { img.removeAttribute('src'); img.classList.add('hidden'); }
+            document.getElementById('notice-enabled').checked = !!noticeSettings.enabled;
+            document.getElementById('notice-heading-input').value = noticeSettings.title || '';
+            document.getElementById('notice-text-input').value = noticeSettings.text || '';
+        }
+        function showNotice() {
+            if (!noticeSettings.enabled) return;
+            if (!noticeSettings.text && !noticeSettings.image) return;
+            applyNoticeSettings(); document.getElementById('notice-overlay').classList.remove('hidden');
+        }
+        function dismissNotice() { document.getElementById('notice-overlay').classList.add('hidden'); }
+        function openNoticeEditor() { toggleAdminMenu(true); applyNoticeSettings(); openModal('modal-notice-editor'); }
+        function clearNoticeImage() { noticeSettings.image = ''; applyNoticeSettings(); }
+        async function saveNoticeSettings() {
+            const file = document.getElementById('notice-image-input').files[0];
+            noticeSettings.enabled = document.getElementById('notice-enabled').checked;
+            noticeSettings.title = document.getElementById('notice-heading-input').value.trim() || 'গুরুত্বপূর্ণ নোটিশ';
+            noticeSettings.text = document.getElementById('notice-text-input').value.trim();
+            if (file) {
+                if (file.size > 8 * 1024 * 1024) return alert('ছবির সাইজ ৮ MB-এর মধ্যে রাখুন।');
+                const data = await new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = e => resolve(e.target.result); reader.onerror = reject; reader.readAsDataURL(file); });
+                noticeSettings.image = await compressImage(data, 900, 0.82);
+            }
+            saveAppStateToStorage(); applyNoticeSettings(); closeModal('modal-notice-editor');
+            if (noticeSettings.enabled) showNotice();
+            alert('নোটিশ সেটিংস সেভ হয়েছে!');
+        }
+
+        function updateInvoiceFields() {
+            document.getElementById('inv-preview-name').innerText = document.getElementById('admin-cust-name').value || 'কাস্টমার';
+            document.getElementById('inv-preview-phone').innerText = document.getElementById('admin-cust-phone').value || '017XXXXXXXX';
+            document.getElementById('inv-preview-address').innerText = document.getElementById('admin-cust-address').value || 'ঢাকা, বাংলাদেশ';
+            document.getElementById('inv-preview-date').innerText = document.getElementById('admin-inv-date').value || new Date().toISOString().split('T')[0];
+        }
+
+        function renderPendingOrdersList() {
+            const container = document.getElementById('admin-pending-orders-list');
+            container.innerHTML = '';
+            let pendings = pendingOrders.filter(o => o.status === 'Pending');
+
+            if (pendings.length === 0) {
+                container.innerHTML = '<p class="italic text-gray-400 text-center py-4">কোনো পেন্ডিং অর্ডার নেই</p>';
+                return;
+            }
+
+            pendings.forEach(ord => {
+                let itemsListHtml = ord.items.map(item => `
+                    <div class="flex items-center gap-2 bg-white p-1 rounded border my-1">
+                        <img src="${item.img}" class="w-10 h-10 object-cover rounded border">
+                        <div class="flex-1">
+                            <h5 class="font-bold text-slate-800">${item.name}</h5>
+                            <p class="text-[10px] text-teal-700 font-bold">৳${item.price} x ${item.qty}</p>
+                        </div>
+                    </div>
+                `).join('');
+
+                container.innerHTML += `
+                    <div class="bg-rose-50 p-2.5 rounded-xl border border-rose-200 text-xs space-y-1 shadow-sm">
+                        <div class="flex justify-between items-center font-bold text-slate-800">
+                            <span>ID: ${ord.id} - ${ord.name}</span>
+                            <span class="text-rose-600 font-extrabold text-sm">৳ ${ord.totalSum}</span>
+                        </div>
+                        <p class="text-slate-600"><b>ফোন:</b> ${ord.phone} | <b>ঠিকানা:</b> ${ord.address}</p>
+                        <div class="py-1">
+                            <p class="font-bold text-slate-700">অর্ডারকৃত পণ্যসমূহ:</p>
+                            ${itemsListHtml}
+                        </div>
+                        <div class="bg-white p-1.5 rounded border text-[11px] font-semibold text-teal-800">
+                            পেমেন্ট: <span class="uppercase font-bold text-pink-600">${ord.payType}</span> | নম্বর: ${ord.senderNo} | Txn ID: ${ord.txnId || 'N/A'}
+                        </div>
+                        <div class="flex gap-2 pt-1">
+                            <button onclick="approveCustomerOrder('${ord.id}')" class="flex-1 bg-emerald-600 text-white font-bold py-1.5 rounded-lg shadow hover:bg-emerald-700">✓ এপ্রুভ করুন</button>
+                            <button onclick="rejectCustomerOrder('${ord.id}')" class="bg-rose-200 text-rose-700 font-bold px-3 py-1.5 rounded-lg">বাতিল</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function savePaymentSettings() {
+            paymentMethods.bkash = document.getElementById('input-bkash').value;
+            paymentMethods.nagad = document.getElementById('input-nagad').value;
+            paymentMethods.rocket = document.getElementById('input-rocket').value;
+            paymentMethods.bank = document.getElementById('input-bank').value;
+            saveAppStateToStorage();
+            closeModal('modal-payments');
+            alert('পেমেন্ট সেটিং সেভ হয়েছে!');
+        }
+
+        function renderAdminInvoiceItems() {
+            const container = document.getElementById('admin-invoice-items');
+            container.innerHTML = '';
+            let totalSum = 0;
+
+            if (adminInvoiceItems.length === 0) {
+                container.innerHTML = '<p class="italic text-gray-400">কোনো পণ্য নির্বাচন করা হয়নি</p>';
+                document.getElementById('admin-selected-badge').innerText = '0';
+                document.getElementById('admin-inv-total-sum').innerText = '৳ ০';
+                return;
+            }
+
+            adminInvoiceItems.forEach(item => {
+                totalSum += item.price;
+                container.innerHTML += `
+                    <div class="flex justify-between items-center bg-slate-50 p-1.5 rounded border text-[11px]">
+                        <div class="flex items-center gap-2">
+                            <img src="${item.img}" class="w-7 h-7 object-cover rounded border" crossorigin="anonymous">
+                            <span class="font-semibold text-slate-800">${item.name}</span>
+                        </div>
+                        <span class="font-bold text-teal-700">৳${item.price}</span>
+                    </div>
+                `;
+            });
+
+            document.getElementById('admin-selected-badge').innerText = adminInvoiceItems.length;
+            document.getElementById('admin-inv-total-sum').innerText = `৳ ${totalSum}`;
+        }
+
+        function toggleAdminInvoiceItem(pId) {
+            let product = products.find(p => p.id === pId);
+            if (!product) return;
+
+            let existing = adminInvoiceItems.find(i => i.pId === pId);
+            if (existing) adminInvoiceItems = adminInvoiceItems.filter(i => i.pId !== pId);
+            else adminInvoiceItems.push({ pId, name: product.name, price: product.price, img: product.img, qty: 1 });
+
+            renderAdminInvoiceItems();
+            renderProductCatalog();
+        }
+
+        function updateAdminNotificationBadges() {
+            const count = pendingOrders.filter(o => o.status === 'Pending').length;
+            const badgeIcon = document.getElementById('admin-notif-badge-icon');
+            const menuBadge = document.getElementById('admin-menu-badge');
+            const pendingCountBadge = document.getElementById('pending-orders-count-badge');
+
+            pendingCountBadge.innerText = count;
+            if (count > 0) {
+                badgeIcon.classList.remove('hidden');
+                menuBadge.classList.remove('hidden');
+                menuBadge.innerText = count;
+            } else {
+                badgeIcon.classList.add('hidden');
+                menuBadge.classList.add('hidden');
+            }
+        }
+
+        function rejectCustomerOrder(orderId) {
+            if (confirm('অর্ডারটি বাতিল করতে চান?')) {
+                pendingOrders = pendingOrders.filter(o => o.id !== orderId);
+                let uOrd = userOrdersHistory.find(u => u.id === orderId);
+                if (uOrd) uOrd.status = 'Rejected';
+                saveAppStateToStorage();
+                updateAdminNotificationBadges();
+                renderPendingOrdersList();
+                renderUserOrderHistory();
+            }
+        }
+
+        function openAddDueModal() {
+            editingDueId = null;
+            ['due-cust-name','due-cust-phone','due-amount','due-paid-date'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('due-date').valueAsDate = new Date();
+            const heading = document.querySelector('#modal-add-due h3'); if (heading) heading.textContent = 'নতুন বকেয়া যোগ করুন';
+            closeModal('modal-due-popup'); openModal('modal-add-due');
+        }
+
+        function updateDueUI() {
+            const list = document.getElementById('due-popup-details-list');
+            list.innerHTML = '';
+            let totalSum = 0;
+
+            if (dues.length === 0) list.innerHTML = '<p class="italic text-gray-400 text-center py-4">কোনো বকেয়া নেই</p>';
+
+            dues.forEach(d => {
+                totalSum += d.amount;
+                list.innerHTML += `
+                    <div class="bg-amber-50 p-2 rounded-lg border border-amber-200 text-xs flex justify-between items-center">
+                        <div class="min-w-0 pr-1"><p class="font-bold text-slate-800">${d.name} (${d.phone || 'ফোন নেই'})</p><p class="text-[10px] text-gray-500">বকেয়ার তারিখ: ${d.date || '—'}</p><p class="text-[10px] ${d.paidDate ? 'text-emerald-700' : 'text-gray-500'}">পরিশোধের তারিখ: ${d.paidDate || 'পরিশোধের তারিখ দেওয়া হয়নি'}</p></div>
+                        <div class="flex items-center gap-1 shrink-0">
+                            <span class="font-bold text-amber-700">৳ ${d.amount}</span>
+                            <button onclick="editDueItem(${d.id})" title="এডিট" class="text-blue-700 font-bold p-1"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteDueItem(${d.id})" title="মুছুন" class="text-rose-600 font-bold p-1"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('admin-total-due').innerText = `৳ ${totalSum}`;
+            document.getElementById('popup-due-amount').innerText = `৳ ${totalSum}`;
+        }
+
+        function renderSalesHistoryDetails() {
+            const list = document.getElementById('sales-history-details-list');
+            list.innerHTML = '';
+            let totalSales = 0;
+
+            if (salesHistory.length === 0) {
+                list.innerHTML = '<p class="italic text-gray-400 text-center py-4">কোনো বিক্রয়ের হিস্টোরি নেই</p>';
+                return;
+            }
+
+            salesHistory.forEach(s => {
+                totalSales += s.total;
+                list.innerHTML += `
+                    <div class="bg-slate-50 p-2 rounded-lg border text-xs space-y-0.5">
+                        <div class="flex justify-between font-bold text-slate-800">
+                            <span>কাস্টমার: ${s.name} (${s.phone})</span>
+                            <span class="text-emerald-600">৳ ${s.total}</span>
+                        </div>
+                        <p class="text-[10px] text-gray-500">পণ্য: ${s.items} | তারিখ: ${s.date}</p>
+                    </div>
+                `;
+            });
+
+            document.getElementById('admin-total-sales').innerText = `৳ ${totalSales}`;
+        }
+
+        function saveShopTitleName() {
+            const newTitle = document.getElementById('input-shop-title-name').value.trim();
+            if (!newTitle) { alert('শপের নাম লিখুন।'); return; }
+            localStorage.setItem('shop_title_name', newTitle);
+            document.querySelectorAll('.shop-title-text').forEach(el => el.innerText = newTitle);
+            if (db) {
+                const tx = db.transaction('appData', 'readwrite');
+                tx.objectStore('appData').put({ key: 'shopTitle', value: newTitle });
+            }
+            closeModal('modal-edit-title');
+            alert('শপের নাম সেভ হয়েছে!');
+        }
+
+        function changeAdminPassword() {
+            const current = document.getElementById('admin-current-password').value;
+            const next = document.getElementById('admin-new-password').value;
+            const confirm = document.getElementById('admin-confirm-password').value;
+            if (current !== adminPassword) { alert('বর্তমান পাসওয়ার্ড সঠিক নয়।'); return; }
+            if (next.length < 4) { alert('নতুন পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের হতে হবে।'); return; }
+            if (next !== confirm) { alert('নতুন পাসওয়ার্ড দুটি মিলছে না।'); return; }
+            adminPassword = next;
+            localStorage.setItem('bcs_admin_password', next);
+            if (db) {
+                const tx = db.transaction('appData', 'readwrite');
+                tx.objectStore('appData').put({ key: 'adminPassword', value: next });
+            }
+            ['admin-current-password','admin-new-password','admin-confirm-password'].forEach(id => document.getElementById(id).value = '');
+            closeModal('modal-change-admin-password');
+            alert('অ্যাডমিন পাসওয়ার্ড পরিবর্তন হয়েছে।');
+        }
+
+        function triggerCropForBanner(index, event) {
+            targetBannerIndex = index;
+            const files = event.target.files;
+            if (files && files.length > 0) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('cropper-target-img');
+                    img.src = e.target.result;
+                    openModal('modal-cropper');
+                    if (mainCropper) mainCropper.destroy();
+                    mainCropper = new Cropper(img, { aspectRatio: 600 / 250, viewMode: 1 });
+                };
+                reader.readAsDataURL(files[0]);
+            }
+        }
+
+        async function confirmCropImage() {
+            if (mainCropper) {
+                try {
+                    const canvas = mainCropper.getCroppedCanvas({ width: 600, height: 250, imageSmoothingQuality: 'high' });
+                    const croppedUrl = canvas.toDataURL('image/jpeg', 0.72);
+                    coverBanners[targetBannerIndex] = croppedUrl;
+                    applyCoverBannersUI();
+                    saveAppStateToStorage();
+                    mainCropper.destroy();
+                    mainCropper = null;
+                    closeModal('modal-cropper');
+                    alert(`ব্যানার ${targetBannerIndex + 1} সেভ হয়েছে! রিফ্রেশ দিলেও থাকবে এবং JSON ব্যাকআপে যুক্ত হবে।`);
+                } catch (err) {
+                    console.error('Banner save failed', err);
+                    alert('ছবি সেভ করা যায়নি। অন্য ছবি দিয়ে চেষ্টা করুন।');
+                }
+            }
+        }
+
+        function applyCoverBannersUI() {
+            for (let i = 0; i < 3; i++) {
+                const src = coverBanners[i];
+                const viewerImg = document.getElementById(`v-banner-${i + 1}`);
+                const adminImg = document.getElementById(`a-banner-${i + 1}`);
+                if (src && viewerImg) viewerImg.src = src;
+                if (src && adminImg) adminImg.src = src;
+            }
+        }
+
+        function startAutoBannerSlider() {
+            setInterval(() => {
+                currentBannerIndex = (currentBannerIndex + 1) % 3;
+                const vSlider = document.getElementById('banner-slider-container');
+                const aSlider = document.getElementById('admin-banner-slider-container');
+                if (vSlider) vSlider.style.transform = `translateX(-${currentBannerIndex * 100}%)`;
+                if (aSlider) aSlider.style.transform = `translateX(-${currentBannerIndex * 100}%)`;
+            }, 3000);
+        }
+
+        function handleBackdropClick(event, modalId) {
+            if (event.target.id === modalId) closeModal(modalId);
+        }
+
+        function openModal(id) {
+            toggleAdminMenu(true);
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function toggleAdminMenu(forceClose = false) {
+            const menu = document.getElementById('admin-dropdown-menu');
+            if (forceClose) menu.classList.add('hidden');
+            else menu.classList.toggle('hidden');
+        }
+
+        function switchViewerTab(tab) {
+            document.getElementById('v-tab-home-content').classList.add('hidden');
+            document.getElementById('v-tab-category-content').classList.add('hidden');
+            document.getElementById('v-tab-profile-content').classList.add('hidden');
+            document.getElementById(`v-tab-${tab}-content`).classList.remove('hidden');
+            if(tab === 'profile') document.getElementById('viewer-approved-badge').classList.add('hidden');
+        }
+
+        function filterViewerSearch() {
+            const query = document.getElementById('viewer-search-input').value.toLowerCase();
+            renderProductCatalog(query, '');
+        }
+
+        function filterAdminStockSearch() {
+            const query = document.getElementById('admin-stock-search').value.toLowerCase();
+            renderProductCatalog('', query);
+        }
+
+        function renderProductCatalog(viewerQuery = '', adminQuery = '') {
+            const productList = document.getElementById('product-list');
+            const adminStockGrid = document.getElementById('admin-stock-grid-list');
+            
+            productList.innerHTML = '';
+            adminStockGrid.innerHTML = '';
+
+            let filteredProducts = activeCategory === 'All' ? products : products.filter(p => p.category === activeCategory);
+            if (viewerQuery) filteredProducts = filteredProducts.filter(p => p.name.toLowerCase().includes(viewerQuery));
+
+            filteredProducts.forEach((p) => {
+                if (!p.selectedQty) p.selectedQty = 1;
+
+                let stockStatusButton = p.stock > 0 ? `
+                    <div class="flex items-center justify-between border rounded my-1 p-1 text-xs">
+                        <button onclick="adjustInlineQty(${p.id}, -1)" class="bg-gray-200 px-1.5 rounded font-bold">-</button>
+                        <span id="inline-qty-${p.id}" class="font-bold">${p.selectedQty}</span>
+                        <button onclick="adjustInlineQty(${p.id}, 1)" class="bg-gray-200 px-1.5 rounded font-bold">+</button>
+                    </div>
+                    <button onclick="addToCartFromInline(${p.id})" class="w-full bg-teal-700 text-white text-xs py-1.5 rounded hover:bg-teal-800 font-semibold">Add to Cart</button>
+                ` : `
+                    <div class="text-[10px] text-rose-600 font-bold my-1 text-center">স্টক আউট</div>
+                `;
+
+                productList.innerHTML += `
+                    <div class="border rounded-lg p-2 shadow-sm bg-white flex flex-col justify-between">
+                        <div>
+                            <img src="${p.img}" class="product-image-square rounded-lg border border-slate-100" alt="${p.name}" onclick="openProductImage(this.src, this.alt)" loading="lazy" crossorigin="anonymous">
+                            <h3 class="font-semibold text-xs mt-1 text-slate-800 line-clamp-1">${p.name}</h3>
+                            <p class="text-teal-700 font-bold text-xs">৳ ${p.price}</p>
+                        </div>
+                        ${stockStatusButton}
+                    </div>
+                `;
+            });
+
+            let adminList = products.filter(p => p.name.toLowerCase().includes(adminQuery) || (p.code && p.code.toLowerCase().includes(adminQuery)));
+
+            adminList.forEach((p) => {
+                let isSelected = adminInvoiceItems.some(i => i.pId === p.id);
+                let selectBtnClass = isSelected ? 'bg-amber-500 text-white' : 'bg-teal-700 text-white';
+                let selectBtnText = isSelected ? 'ইনভয়েসে আছে (✓)' : '+ ইনভয়েসে যোগ';
+
+                adminStockGrid.innerHTML += `
+                    <div class="border rounded-lg p-2 shadow-sm bg-white flex flex-col justify-between">
+                        <div>
+                            <img src="${p.img}" class="product-image-square rounded border mb-1" alt="${p.name}" onclick="openProductImage(this.src, this.alt)" loading="lazy" crossorigin="anonymous">
+                            <h4 class="font-bold text-xs text-slate-800 line-clamp-1">${p.name}</h4>
+                            <p class="text-[10px] text-teal-700 font-bold">৳ ${p.price} | স্টক: ${p.stock}</p>
+                        </div>
+                        <div class="space-y-1 mt-1 border-t pt-1">
+                            <button onclick="toggleAdminInvoiceItem(${p.id})" class="w-full ${selectBtnClass} text-[10px] font-bold py-1 rounded shadow">${selectBtnText}</button>
+                            <button onclick="deleteProduct(${p.id})" class="w-full bg-rose-100 text-rose-600 text-[9px] font-bold py-1 rounded">ডিলিট</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('admin-total-products').innerText = `${products.length} টি`;
+        }
+
+        function adjustInlineQty(pId, change) {
+            let product = products.find(p => p.id === pId);
+            if (product) {
+                product.selectedQty = (product.selectedQty || 1) + change;
+                if (product.selectedQty < 1) product.selectedQty = 1;
+                document.getElementById(`inline-qty-${pId}`).innerText = product.selectedQty;
+            }
+        }
+
+        function addToCartFromInline(pId) {
+            let product = products.find(p => p.id === pId);
+            if (!product || product.stock <= 0) return;
+
+            let qtyToAdd = product.selectedQty || 1;
+            let cartItem = cart.find(item => item.pId === pId);
+
+            if (cartItem) cartItem.qty += qtyToAdd;
+            else cart.push({ pId, name: product.name, price: product.price, img: product.img, qty: qtyToAdd });
+
+            product.selectedQty = 1;
+            updateCartUI();
+            alert('পণ্য কার্টে যোগ করা হয়েছে!');
+        }
+
+        function updateCartUI() {
+            const badgeBottom = document.getElementById('cart-badge-bottom');
+            let totalItemsCount = cart.reduce((acc, i) => acc + i.qty, 0);
+            if (totalItemsCount > 0) {
+                badgeBottom.innerText = totalItemsCount;
+                badgeBottom.classList.remove('hidden');
+            } else badgeBottom.classList.add('hidden');
+        }
+
+        function openCheckoutModal() {
+            if (cart.length === 0) return alert('আপনার কার্ট খালি!');
+            document.getElementById('checkout-cust-name').value = viewerProfile.name || '';
+            document.getElementById('checkout-cust-phone').value = viewerProfile.phone || '';
+            document.getElementById('checkout-cust-address').value = viewerProfile.address || '';
+            updateCheckoutPayInfo('bkash');
+            openModal('modal-viewer-checkout');
+        }
+
+        function updateCheckoutPayInfo(type) {
+            if (paymentMethods[type]) document.getElementById('checkout-target-no').innerText = paymentMethods[type];
+        }
+
+        function renderUserOrderHistory() {
+            const container = document.getElementById('user-order-history-list');
+            container.innerHTML = '';
+            userOrdersHistory.forEach(ord => {
+                let badgeBg = ord.status === 'Approved' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800';
+                container.innerHTML += `
+                    <div class="border rounded-lg p-2 bg-slate-50 space-y-1">
+                        <div class="flex justify-between items-center font-bold text-slate-800">
+                            <span>ID: ${ord.id}</span>
+                            <span class="${badgeBg} text-[9px] font-bold px-2 py-0.5 rounded">${ord.status}</span>
+                        </div>
+                        <p class="text-slate-600 text-[11px]"><b>পণ্য:</b> ${ord.items}</p>
+                        <div class="flex justify-between items-center text-[10px] text-gray-400 border-t pt-1 mt-1">
+                            <span>তারিখ: ${ord.date}</span>
+                            <span class="font-bold text-teal-700 text-xs">৳ ${ord.total}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderCategoriesUI() {
+            const homePills = document.getElementById('home-category-pills');
+            homePills.innerHTML = `<button onclick="filterCategory('All')" class="${activeCategory==='All'?'bg-teal-700 text-white':'bg-slate-100 text-slate-700 border'} px-3 py-1 rounded-full shrink-0">All</button>`;
+            
+            categories.forEach(cat => {
+                let activeClass = activeCategory === cat.name ? 'bg-teal-700 text-white' : 'bg-slate-100 text-slate-700 border';
+                homePills.innerHTML += `<button onclick="filterCategory('${cat.name}')" class="${activeClass} px-3 py-1 rounded-full shrink-0 flex items-center gap-1.5"><img src="${cat.img}" class="w-3.5 h-3.5 object-cover rounded-full"><span>${cat.name}</span></button>`;
+            });
+
+            const viewerGrid = document.getElementById('viewer-category-grid');
+            viewerGrid.innerHTML = '';
+            categories.forEach(cat => {
+                viewerGrid.innerHTML += `
+                    <div onclick="filterCategory('${cat.name}'); switchViewerTab('home')" class="p-3 bg-teal-50 border border-teal-200 rounded-xl text-center cursor-pointer hover:bg-teal-100 flex flex-col items-center">
+                        <img src="${cat.img}" class="w-12 h-12 object-cover mb-1.5 rounded-lg border bg-white p-1" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3081/3081559.png'">
+                        <h3 class="font-bold text-xs text-teal-900">${cat.name}</h3>
+                    </div>
+                `;
+            });
+
+            const adminCatSelect = document.getElementById('p-category');
+            if (adminCatSelect) {
+                adminCatSelect.innerHTML = '';
+                categories.forEach(c => adminCatSelect.innerHTML += `<option value="${c.name}">${c.name}</option>`);
+            }
+
+            const adminCatList = document.getElementById('admin-category-list-container');
+            if (adminCatList) {
+                adminCatList.innerHTML = '';
+                categories.forEach(cat => {
+                    adminCatList.innerHTML += `
+                        <div class="flex justify-between items-center bg-slate-50 border p-1.5 rounded-lg">
+                            <div class="flex items-center gap-2">
+                                <img src="${cat.img}" class="w-6 h-6 object-cover rounded border">
+                                <span class="font-bold text-slate-800">${cat.name}</span>
+                            </div>
+                            <button onclick="deleteCategory(${cat.id})" class="text-red-500 font-bold px-2 py-1"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        function filterCategory(cat) {
+            activeCategory = cat;
+            document.getElementById('current-category-title').innerText = cat === 'All' ? 'সকল পণ্য' : `${cat} ক্যাটাগরির পণ্য`;
+            renderCategoriesUI();
+            renderProductCatalog();
+        }
+
+        function updateExpenseUI() {
+            const list = document.getElementById('expense-popup-details-list');
+            list.innerHTML = '';
+            let totalSum = 0;
+
+            if (expenses.length === 0) list.innerHTML = '<p class="italic text-gray-400 text-center py-4">কোনো খরচ পাওয়া যায়নি</p>';
+
+            expenses.forEach(exp => {
+                totalSum += exp.amount;
+                list.innerHTML += `
+                    <div class="bg-slate-50 p-2 rounded-lg border text-xs flex justify-between items-center">
+                        <div><p class="font-bold text-slate-800">${exp.title}</p><p class="text-[10px] text-gray-400">তারিখ: ${exp.date}</p></div>
+                        <span class="font-bold text-rose-600">৳ ${exp.amount}</span>
+                    </div>
+                `;
+            });
+
+            document.getElementById('admin-total-expense').innerText = `৳ ${totalSum}`;
+        }
+
+        function updateAdminLogo(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    appLogoSrc = await compressImage(e.target.result, 150, 0.8);
+                    document.getElementById('admin-logo-preview').src = appLogoSrc;
+                    saveAppStateToStorage();
+                    closeModal('modal-edit-logo');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function checkAdminPassword() {
+            if (document.getElementById('admin-pass-input').value === adminPassword) {
+                document.getElementById('admin-lock-screen').classList.add('hidden');
+                document.getElementById('admin-content').classList.remove('hidden');
+            } else alert('ভুল পাসওয়ার্ড!');
+        }
+
+        function switchMode(mode) {
+            if (mode === 'viewer') {
+                document.getElementById('viewer-view').classList.remove('hidden');
+                document.getElementById('admin-view').classList.add('hidden');
+            } else {
+                document.getElementById('viewer-view').classList.add('hidden');
+                document.getElementById('admin-view').classList.remove('hidden');
+            }
+        }
+        function openProductImage(src, caption) {
+            const viewer = document.getElementById('product-image-viewer');
+            const image = document.getElementById('product-image-viewer-img');
+            image.src = src;
+            image.alt = caption || 'প্রোডাক্টের বড় ছবি';
+            image.classList.remove('scale-110');
+            document.getElementById('product-image-viewer-caption').textContent = caption || '';
+            viewer.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeProductImage() {
+            document.getElementById('product-image-viewer').classList.add('hidden');
+            document.getElementById('product-image-viewer-img').src = '';
+            document.body.style.overflow = '';
+        }
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeProductImage(); });
+
+        // Restore the saved shop name immediately, then IndexedDB can refresh it when ready.
+        applyShopTitleUI();
+    </script>
+</body>
+</html>
